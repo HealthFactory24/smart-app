@@ -1,0 +1,43 @@
+<svg width="780" height="300" viewBox="0 0 780 300" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">StackShop demo users</title>
+  <desc id="desc">Demo credentials for normal user and admin user</desc>
+  <rect width="780" height="300" rx="28" fill="#0F172A"/>
+  <rect x="1" y="1" width="778" height="298" rx="27" stroke="#334155" stroke-width="2"/>
+
+  <text x="40" y="56" fill="#F8FAFC" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="28" font-weight="800">
+    StackShop Demo Users
+  </text>
+  <text x="40" y="84" fill="#94A3B8" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="14">
+    Use these accounts to test role-based access.
+  </text>
+
+  <g transform="translate(40 115)">
+    <rect width="330" height="140" rx="20" fill="#111827" stroke="#334155"/>
+    <circle cx="42" cy="42" r="22" fill="#22C55E" fill-opacity="0.16"/>
+    <path d="M42 43c8.284 0 15 5.373 15 12v2H27v-2c0-6.627 6.716-12 15-12Zm0-4a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" fill="#22C55E"/>
+    <text x="78" y="36" fill="#F8FAFC" font-family="Inter, ui-sans-serif, system-ui" font-size="20" font-weight="800">Normal User</text>
+    <text x="78" y="59" fill="#86EFAC" font-family="Inter, ui-sans-serif, system-ui" font-size="12" font-weight="700">Role: user</text>
+
+    <text x="28" y="93" fill="#CBD5E1" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13">Email</text>
+    <text x="92" y="93" fill="#F8FAFC" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13">ornelas.fidel19@gmail.com</text>
+    <text x="28" y="118" fill="#CBD5E1" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13">Pass</text>
+    <text x="92" y="118" fill="#F8FAFC" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13">12345678</text>
+  </g>
+
+  <g transform="translate(410 115)">
+    <rect width="330" height="140" rx="20" fill="#111827" stroke="#334155"/>
+    <circle cx="42" cy="42" r="22" fill="#F59E0B" fill-opacity="0.16"/>
+    <path d="M31 54h22l3-24-9 7-5-13-5 13-9-7 3 24Zm-1 6h24v-4H30v4Z" fill="#F59E0B"/>
+    <text x="78" y="36" fill="#F8FAFC" font-family="Inter, ui-sans-serif, system-ui" font-size="20" font-weight="800">Admin User</text>
+    <text x="78" y="59" fill="#FCD34D" font-family="Inter, ui-sans-serif, system-ui" font-size="12" font-weight="700">Role: admin</text>
+
+    <text x="28" y="93" fill="#CBD5E1" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13">Email</text>
+    <text x="92" y="93" fill="#F8FAFC" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13">lolita4@gmail.com</text>
+    <text x="28" y="118" fill="#CBD5E1" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13">Pass</text>
+    <text x="92" y="118" fill="#F8FAFC" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="13">12345678</text>
+  </g>
+
+  <text x="40" y="278" fill="#64748B" font-family="Inter, ui-sans-serif, system-ui" font-size="12">
+    Demo credentials only — replace before production.
+  </text>
+</svg>
