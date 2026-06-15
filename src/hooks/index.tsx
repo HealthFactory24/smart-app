@@ -1077,7 +1077,7 @@ export function useCreatePayment(options?: UseMutationOptions) {
 	return useMutation({
 		mutationFn: (data: Parameters<typeof createPayment>[0]) => createPayment(data),
 		onSuccess: (_, variables) => {
-			queryClient.invalidateQueries({ queryKey: paymentKeys.byPatient(variables.data.patientId??"") });
+			queryClient.invalidateQueries({ queryKey: paymentKeys.byPatient(variables.data.patientId ?? "") });
 			queryClient.invalidateQueries({ queryKey: paymentKeys.summary() });
 		},
 		...options

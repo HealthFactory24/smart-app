@@ -1,13 +1,13 @@
 // src/routes/services/index.tsx
 
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { CheckCircle, Clock, DollarSign, Stethoscope } from "lucide-react";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getAllServices } from "@/data/services";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { CheckCircle, Clock, DollarSign, Stethoscope } from "lucide-react";
-import { Suspense } from "react";
-import type { DbService } from '@/db/schema';
+import type { DbService } from "@/db/schema";
 
 export const Route = createFileRoute("/services/")({
 	loader: async () => {
@@ -49,13 +49,17 @@ function ServicesPage() {
 				</div>
 
 				<Suspense fallback={<ServicesGridSkeleton />}>
-					<div className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3' data-slot="card-group">
-						{Array.isArray(services) && (services as unknown as DbService[]).map((service: DbService) => (
-							<ServiceCard
-								key={service.id}
-								service={service}
-							/>
-						))}
+					<div
+						className='grid gap-6 sm:grid-cols-2 lg:grid-cols-3'
+						data-slot='card-group'
+					>
+						{Array.isArray(services) &&
+							(services as unknown as DbService[]).map((service: DbService) => (
+								<ServiceCard
+									key={service.id}
+									service={service}
+								/>
+							))}
 					</div>
 				</Suspense>
 			</section>

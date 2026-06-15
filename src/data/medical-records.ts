@@ -222,3 +222,96 @@ export const deleteMedicalRecord = createServerFn({ method: "POST" })
 		if (!deleted) throw new Error("Medical record not found");
 		return { success: true };
 	});
+// Add to existing data/medical-records.ts
+
+// Get all medical records for clinic (admin/staff)
+export const getAllMedicalRecords = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+  if (session.user.role === "patient") throw new Error("Forbidden");
+
+  const { db } = await import("@/db");
+
+  // Get user's clinic ID
+  const userClinics = await db
+    .select({ clinicId: sql`clinic_id` })
+    .from(sql`users_to_clinic`)
+    .where(eq(sql`user_id`, session.user.id))
+    .limit(1);
+
+  const clinicId = userClinics[0]?.clinicId;
+
+  const records = await db.query.medicalRecord.findMany({
+    where: {
+      clinicId: clinicId ?? "",
+      isDeleted: false,
+    },
+    with: {
+      patient: {
+        columns: { id: true, firstName: true, lastName: true, dateOfBirth: true, mrn: true },
+      },
+      doctor: {
+        columns: { id: true, name: true, specialty: true },
+      },
+      appointment: {
+        columns: { id: true, appointmentDate: true, type: true },
+      },
+      vitalSigns: {
+        limit: 1,
+        orderBy: { recordedAt: "desc" },
+      },
+      prescriptions: {
+        limit: 3,
+        orderBy: { issuedDate: "desc" },
+        with: {
+          prescribedItems: {
+            with: { drug: true },
+          },
+        },
+      },
+      labTests: {
+        limit: 3,
+        orderBy: { testDate: "desc" },
+        with: { service: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return records;
+});
+
+// Get recent medical records for dashboard
+export const getRecentMedicalRecords = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await getSession();
+  if (!session) throw new Error("Unauthorized");
+
+  const { db } = await import("@/db");
+
+  const userClinics = await db
+    .select({ clinicId: sql`clinic_id` })
+    .from(sql`users_to_clinic`)
+    .where(eq(sql`user_id`, session.user.id))
+    .limit(1);
+
+  const clinicId = userClinics[0]?.clinicId;
+
+  const records = await db.query.medicalRecord.findMany({
+    where: {
+      clinicId: clinicId ?? "",
+      isDeleted: false,
+    },
+    with: {
+      patient: {
+        columns: { id: true, firstName: true, lastName: true },
+      },
+      doctor: {
+        columns: { id: true, name: true },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    limit: 5,
+  });
+
+  return records;
+});

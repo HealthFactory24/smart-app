@@ -2,8 +2,8 @@
 // Navigation configuration for the sidebar and Cmd+K bar.
 // All URLs must match actual TanStack Router route paths.
 
+import type { UserRole } from "@/lib/permissions";
 import type { Icons } from "../components/icons";
-import type { UserRole } from "../lib/auth/permissions";
 
 export interface NavItem {
 	title: string;

@@ -1,13 +1,14 @@
 // src/routes/appointments/$id.cancel.tsx
+
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { AlertCircle } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cancelAppointment, getAppointmentById } from "@/data/appointments";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { AlertCircle } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/appointments/$id/cancel")({
 	beforeLoad: async ({ context }) => {

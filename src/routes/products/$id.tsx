@@ -2,7 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, notFound, useRouter } from "@tanstack/react-router";
 import { ArrowLeftIcon, ShoppingBagIcon, SparklesIcon } from "lucide-react";
 import { Suspense, useState } from "react";
-import { cartCountQueryKey } from "#/components/Header";
 import { RecommendedProducts } from "#/components/RecommndedProducts";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "#/components/ui/card";
@@ -10,6 +9,7 @@ import { Skeleton } from "#/components/ui/skeleton";
 import { addToCart } from "#/data/cart";
 import { getProductById, getRecommendedProducts } from "#/data/products";
 
+const cartCountQueryKey = ["cart-count"] as const;
 export const Route = createFileRoute("/products/$id")({
 	component: RouteComponent,
 	loader: async ({ params }) => {

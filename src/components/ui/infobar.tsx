@@ -2,9 +2,8 @@ import { Slot } from "@radix-ui/react-slot";
 import { useLocation } from "@tanstack/react-router";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-
-import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/icons";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";

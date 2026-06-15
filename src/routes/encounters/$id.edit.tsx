@@ -1,3 +1,9 @@
+import { useForm } from "@tanstack/react-form";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
+import { Activity, ArrowLeft, Droplets, Heart, Ruler, Thermometer, Weight } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -8,12 +14,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { getEncounterById, updateEncounter } from "@/data/diagnosis";
 import { getAllDoctors } from "@/data/doctors";
-import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
-import { Activity, ArrowLeft, Droplets, Heart, Ruler, Thermometer, Weight } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { z } from "zod";
 
 const encounterSchema = z.object({
 	type: z.string().min(1, "Visit type is required"),
@@ -65,8 +65,10 @@ function EditEncounterPage() {
 			try {
 				await updateEncounter({
 					data: {
-						id: encounter.id,
-						...value
+						values: {
+							...value
+						},
+						id: encounter.id
 					}
 				});
 				toast.success("Encounter updated successfully");

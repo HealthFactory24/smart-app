@@ -1,15 +1,23 @@
-// src/routes/encounters/$id.tsx
-
+// src/routes/medical-records/$id.tsx
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import {
 	Activity,
+	AlertCircle,
 	ArrowLeft,
 	Calendar,
+	Clock,
 	Droplets,
+	Edit,
+	FileText,
 	Heart,
+	Mail,
+	Phone,
 	Pill,
+	Printer,
 	Ruler,
+	Share2,
 	Stethoscope,
+	Syringe,
 	Thermometer,
 	User,
 	Weight
@@ -17,79 +25,101 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getEncounterById } from "@/data/diagnosis";
+import { getMedicalRecordById } from "@/data/medical-records";
 import { formatDate } from "@/utils/formDate";
-import type { DbDrug, DbPrescribedItem } from "../../db/schema";
+import { calculateAge, calculateBMI } from "@/utils/growth";
 
-export const Route = createFileRoute("/encounters/$id")({
+export const Route = createFileRoute("/medical-records/$id")({
 	beforeLoad: async ({ context }) => {
 		const session = context.session;
 		if (!session) throw redirect({ to: "/sign-in" });
 		return { user: session.user };
 	},
 	loader: async ({ params }) => {
-		const encounter = await getEncounterById({ data: params.id });
-		if (!encounter) throw notFound();
-		return { encounter };
+		const record = await getMedicalRecordById({ data: params.id });
+		if (!record) throw notFound();
+		return { record };
 	},
-	component: EncounterDetailPage
+	component: MedicalRecordDetailPage
 });
 
-function EncounterDetailPage() {
-	const { encounter } = Route.useLoaderData();
+const statusColors: Record<string, string> = {
+	ACTIVE: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+	COMPLETED: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
+	PENDING: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+	ON_HOLD: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+};
 
-	const getStatusColor = (status: string) => {
-		switch (status) {
-			case "ACTIVE":
-				return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
-			case "COMPLETED":
-				return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
-			default:
-				return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
-		}
-	};
+function MedicalRecordDetailPage() {
+	const { record } = Route.useLoaderData();
+	const { user } = Route.useRouteContext();
+	const isAdmin = user?.role === "admin";
+	const isStaff = user?.role === "staff" || user?.role === "doctor";
+	const canEdit = isAdmin || isStaff;
+
+	const patientAge = record.patient?.dateOfBirth
+		? (calculateAge(record.patient.dateOfBirth, "string") as string)
+		: "N/A";
+
+	const bmi =
+		record.vitalSigns?.[0]?.weight && record.vitalSigns?.[0]?.height
+			? calculateBMI(record.vitalSigns[0].weight, record.vitalSigns[0].height)
+			: null;
 
 	return (
-		<div className='mx-auto max-w-4xl px-4 py-8'>
+		<div className='mx-auto max-w-5xl px-4 py-8'>
 			<div className='space-y-6'>
-				{/* Header with Back Button */}
+				{/* Header */}
 				<div className='flex flex-wrap items-center justify-between gap-4'>
 					<Link
 						className='inline-flex items-center gap-2 text-slate-600 text-sm hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
-						to='/encounters'
+						to='/medical-records'
 					>
 						<ArrowLeft className='h-4 w-4' />
-						Back to Encounters
+						Back to Records
 					</Link>
 					<div className='flex gap-2'>
-						<Link
-							params={{ id: encounter.id }}
-							to='/encounters/$id/edit'
+						<Button
+							size='sm'
+							variant='outline'
 						>
-							<Button
-								size='sm'
-								variant='outline'
+							<Printer className='mr-2 h-4 w-4' />
+							Print
+						</Button>
+						<Button
+							size='sm'
+							variant='outline'
+						>
+							<Share2 className='mr-2 h-4 w-4' />
+							Share
+						</Button>
+						{canEdit && (
+							<Link
+								params={{ id: record.id }}
+								to='/medical-records/$id/edit'
 							>
-								Edit Encounter
-							</Button>
-						</Link>
+								<Button size='sm'>
+									<Edit className='mr-2 h-4 w-4' />
+									Edit Record
+								</Button>
+							</Link>
+						)}
 					</div>
 				</div>
 
-				{/* Encounter Header */}
+				{/* Record Header */}
 				<Card>
 					<CardHeader>
 						<div className='flex flex-wrap items-start justify-between gap-3'>
 							<div>
 								<div className='flex items-center gap-2'>
-									<h1 className='font-semibold text-2xl'>Encounter Details</h1>
-									<Badge className={getStatusColor(encounter.status ?? "ACTIVE")}>
-										{encounter.status || "ACTIVE"}
-									</Badge>
+									<h1 className='font-semibold text-2xl'>Medical Record</h1>
+									<Badge className={statusColors[record.status]}>{record.status}</Badge>
 								</div>
 								<CardDescription className='mt-1'>
-									{formatDate(encounter.date)} • {encounter.type || "Consultation"}
+									Created {formatDate(record.createdAt)} • Last updated {formatDate(record.updatedAt)}
 								</CardDescription>
 							</div>
 						</div>
@@ -103,8 +133,8 @@ function EncounterDetailPage() {
 					<TabsList className='grid w-full grid-cols-4'>
 						<TabsTrigger value='overview'>Overview</TabsTrigger>
 						<TabsTrigger value='vitals'>Vital Signs</TabsTrigger>
-						<TabsTrigger value='growth'>Growth</TabsTrigger>
-						<TabsTrigger value='prescriptions'>Prescriptions</TabsTrigger>
+						<TabsTrigger value='medications'>Medications</TabsTrigger>
+						<TabsTrigger value='lab-results'>Lab Results</TabsTrigger>
 					</TabsList>
 
 					{/* Overview Tab */}
@@ -125,24 +155,27 @@ function EncounterDetailPage() {
 									</div>
 									<Link
 										className='text-primary hover:underline'
-										params={{ id: encounter.patientId }}
+										params={{ id: record.patientId }}
 										to='/patients/$id'
 									>
-										{encounter.patient?.firstName} {encounter.patient?.lastName}
+										{record.patient?.firstName} {record.patient?.lastName}
 									</Link>
 									<p className='text-slate-500 text-xs'>
-										DOB: {formatDate(encounter.patient?.dateOfBirth)}
+										DOB: {formatDate(record.patient?.dateOfBirth)} ({patientAge})
 									</p>
+									{record.patient?.mrn && (
+										<p className='text-slate-500 text-xs'>MRN: {record.patient.mrn}</p>
+									)}
 								</div>
 								<div className='space-y-2'>
 									<div className='flex items-center gap-2'>
 										<Stethoscope className='h-4 w-4 text-slate-400' />
 										<span className='font-medium'>Doctor</span>
 									</div>
-									<p>Dr. {encounter.doctor?.name}</p>
-									<p className='text-slate-500 text-xs'>{encounter.doctor?.specialty}</p>
+									<p>Dr. {record.doctor?.name}</p>
+									<p className='text-slate-500 text-xs'>{record.doctor?.specialty}</p>
 								</div>
-								{encounter.appointment && (
+								{record.appointment && (
 									<div className='sm:col-span-2'>
 										<div className='flex items-center gap-2'>
 											<Calendar className='h-4 w-4 text-slate-400' />
@@ -150,42 +183,43 @@ function EncounterDetailPage() {
 										</div>
 										<Link
 											className='text-primary hover:underline'
-											params={{ id: encounter.appointment.id }}
+											params={{ id: record.appointment.id }}
 											to='/appointments/$id'
 										>
-											{formatDate(encounter.appointment.appointmentDate)} -{" "}
-											{encounter.appointment.type}
+											{formatDate(record.appointment.appointmentDate)} - {record.appointment.type}
 										</Link>
 									</div>
 								)}
 							</CardContent>
 						</Card>
 
-						{/* Symptoms & Diagnosis */}
+						{/* Clinical Information */}
 						<Card>
 							<CardHeader>
 								<CardTitle className='text-lg'>Clinical Information</CardTitle>
 							</CardHeader>
 							<CardContent className='space-y-4'>
-								<div>
-									<h3 className='mb-1 font-medium text-sm'>Symptoms / Chief Complaint</h3>
-									<p className='rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-800'>
-										{encounter.symptoms}
-									</p>
-								</div>
-								{encounter.diagnosis && (
+								{record.symptoms && (
 									<div>
-										<h3 className='mb-1 font-medium text-sm'>Diagnosis</h3>
+										<h3 className='mb-1 font-medium text-sm'>Symptoms / Chief Complaint</h3>
 										<p className='rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-800'>
-											{encounter.diagnosis}
+											{record.symptoms}
 										</p>
 									</div>
 								)}
-								{encounter.treatment && (
+								{record.diagnosis && (
+									<div>
+										<h3 className='mb-1 font-medium text-sm'>Diagnosis</h3>
+										<p className='rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-800'>
+											{record.diagnosis}
+										</p>
+									</div>
+								)}
+								{record.treatmentPlan && (
 									<div>
 										<h3 className='mb-1 font-medium text-sm'>Treatment Plan</h3>
 										<p className='rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-800'>
-											{encounter.treatment}
+											{record.treatmentPlan}
 										</p>
 									</div>
 								)}
@@ -193,31 +227,34 @@ function EncounterDetailPage() {
 						</Card>
 
 						{/* Additional Information */}
-						{(encounter.notes || encounter.followUpPlan || encounter.prescribedMedications) && (
+						{(record.notes || record.labRequest || record.followUpDate) && (
 							<Card>
 								<CardHeader>
 									<CardTitle className='text-lg'>Additional Information</CardTitle>
 								</CardHeader>
 								<CardContent className='space-y-4'>
-									{encounter.prescribedMedications && (
+									{record.labRequest && (
 										<div>
 											<h3 className='mb-1 flex items-center gap-2 font-medium text-sm'>
-												<Pill className='h-4 w-4' />
-												Prescribed Medications
+												<Activity className='h-4 w-4' />
+												Lab Requests
 											</h3>
-											<p className='text-sm'>{encounter.prescribedMedications}</p>
+											<p className='text-sm'>{record.labRequest}</p>
 										</div>
 									)}
-									{encounter.followUpPlan && (
+									{record.followUpDate && (
 										<div>
-											<h3 className='mb-1 font-medium text-sm'>Follow-up Plan</h3>
-											<p className='text-sm'>{encounter.followUpPlan}</p>
+											<h3 className='mb-1 flex items-center gap-2 font-medium text-sm'>
+												<Calendar className='h-4 w-4' />
+												Follow-up Date
+											</h3>
+											<p className='text-sm'>{formatDate(record.followUpDate)}</p>
 										</div>
 									)}
-									{encounter.notes && (
+									{record.notes && (
 										<div>
 											<h3 className='mb-1 font-medium text-sm'>Notes</h3>
-											<p className='text-sm'>{encounter.notes}</p>
+											<p className='text-sm'>{record.notes}</p>
 										</div>
 									)}
 								</CardContent>
@@ -230,12 +267,12 @@ function EncounterDetailPage() {
 						className='space-y-4'
 						value='vitals'
 					>
-						{encounter.vitalSigns && encounter.vitalSigns.length > 0 ? (
-							encounter.vitalSigns.map((vitals: any, index: number) => (
+						{record.vitalSigns && record.vitalSigns.length > 0 ? (
+							record.vitalSigns.map((vitals, index) => (
 								<Card key={index}>
 									<CardHeader>
-										<CardTitle className='text-lg'>Vital Signs Recorded</CardTitle>
-										<CardDescription>{formatDate(vitals.recordedAt)}</CardDescription>
+										<CardTitle className='text-lg'>Vital Signs</CardTitle>
+										<CardDescription>Recorded on {formatDate(vitals.recordedAt)}</CardDescription>
 									</CardHeader>
 									<CardContent>
 										<div className='grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
@@ -305,6 +342,13 @@ function EncounterDetailPage() {
 												</div>
 											)}
 										</div>
+										{bmi && (
+											<div className='mt-4 rounded-lg bg-slate-50 p-3 dark:bg-slate-800'>
+												<p className='text-sm'>
+													<span className='font-medium'>BMI:</span> {bmi.bmi} ({bmi.status})
+												</p>
+											</div>
+										)}
 									</CardContent>
 								</Card>
 							))
@@ -314,65 +358,21 @@ function EncounterDetailPage() {
 									<Activity className='mx-auto h-12 w-12 text-slate-400' />
 									<h3 className='mt-4 font-semibold text-lg'>No Vital Signs</h3>
 									<p className='mt-2 text-slate-600 text-sm dark:text-slate-400'>
-										No vital signs were recorded for this encounter.
+										No vital signs recorded for this medical record.
 									</p>
 								</CardContent>
 							</Card>
 						)}
 					</TabsContent>
 
-					{/* Growth Tab */}
+					{/* Medications Tab */}
 					<TabsContent
 						className='space-y-4'
-						value='growth'
+						value='medications'
 					>
-						<Card>
-							<CardHeader>
-								<CardTitle className='text-lg'>Growth Measurements</CardTitle>
-								<CardDescription>Height, weight, and BMI tracking</CardDescription>
-							</CardHeader>
-							<CardContent>
-								{encounter.vitalSigns && encounter.vitalSigns[0]?.weight ? (
-									<div className='grid gap-4 sm:grid-cols-3'>
-										<div className='text-center'>
-											<p className='text-slate-500 text-xs'>Weight</p>
-											<p className='font-bold text-xl'>{encounter.vitalSigns[0].weight} kg</p>
-										</div>
-										<div className='text-center'>
-											<p className='text-slate-500 text-xs'>Height</p>
-											<p className='font-bold text-xl'>
-												{encounter.vitalSigns[0].height || "—"} cm
-											</p>
-										</div>
-										<div className='text-center'>
-											<p className='text-slate-500 text-xs'>BMI</p>
-											<p className='font-bold text-xl'>
-												{encounter.vitalSigns[0].weight && encounter.vitalSigns[0].height
-													? (
-															encounter.vitalSigns[0].weight /
-															(encounter.vitalSigns[0].height / 100) ** 2
-														).toFixed(1)
-													: "—"}
-											</p>
-										</div>
-									</div>
-								) : (
-									<p className='py-8 text-center text-slate-500 text-sm'>
-										No growth measurements recorded for this encounter.
-									</p>
-								)}
-							</CardContent>
-						</Card>
-					</TabsContent>
-
-					{/* Prescriptions Tab */}
-					<TabsContent
-						className='space-y-4'
-						value='prescriptions'
-					>
-						{encounter.prescriptions && encounter.prescriptions.length > 0 ? (
-							encounter.prescriptions.map((prescription: any, index: number) => (
-								<Card key={index}>
+						{record.prescriptions && record.prescriptions.length > 0 ? (
+							record.prescriptions.map(prescription => (
+								<Card key={prescription.id}>
 									<CardHeader>
 										<div className='flex flex-wrap items-start justify-between gap-2'>
 											<div>
@@ -398,25 +398,43 @@ function EncounterDetailPage() {
 										</div>
 									</CardHeader>
 									<CardContent>
-										<p className='font-medium'>
-											Diagnosis: {prescription.diagnosis || "Not specified"}
-										</p>
+										{prescription.diagnosis && (
+											<p className='mb-3 font-medium'>Diagnosis: {prescription.diagnosis}</p>
+										)}
 										{prescription.prescribedItems && prescription.prescribedItems.length > 0 && (
-											<div className='mt-3 space-y-2'>
-												<p className='font-medium text-sm'>Medications:</p>
-												<ul className='list-inside list-disc space-y-1 text-sm'>
-													{prescription.prescribedItems.map(
-														(
-															item: DbPrescribedItem & { drug?: DbDrug | null },
-															i: number
-														) => (
-															<li key={i}>
-																{item.drug?.name || item.drugId} - {item.dosageValue}{" "}
-																{item.dosageUnit} - {item.frequency}
-															</li>
-														)
-													)}
-												</ul>
+											<div className='space-y-3'>
+												<h4 className='font-medium text-sm'>Medications:</h4>
+												<div className='space-y-2'>
+													{prescription.prescribedItems.map((item, idx) => (
+														<div
+															className='rounded-lg border p-3 dark:border-slate-700'
+															key={idx}
+														>
+															<div className='flex items-start justify-between'>
+																<div>
+																	<p className='font-medium'>
+																		{item.drug?.name || item.drugId}
+																	</p>
+																	<p className='text-slate-600 text-sm dark:text-slate-400'>
+																		{item.dosageValue} {item.dosageUnit} •{" "}
+																		{item.frequency.replace(/_/g, " ")}
+																	</p>
+																	{item.duration && (
+																		<p className='text-slate-500 text-xs'>
+																			Duration: {item.duration}
+																		</p>
+																	)}
+																</div>
+																<Pill className='h-5 w-5 text-slate-400' />
+															</div>
+															{item.instructions && (
+																<p className='mt-2 text-slate-600 text-sm dark:text-slate-400'>
+																	{item.instructions}
+																</p>
+															)}
+														</div>
+													))}
+												</div>
 											</div>
 										)}
 									</CardContent>
@@ -426,9 +444,71 @@ function EncounterDetailPage() {
 							<Card>
 								<CardContent className='py-12 text-center'>
 									<Pill className='mx-auto h-12 w-12 text-slate-400' />
-									<h3 className='mt-4 font-semibold text-lg'>No Prescriptions</h3>
+									<h3 className='mt-4 font-semibold text-lg'>No Medications</h3>
 									<p className='mt-2 text-slate-600 text-sm dark:text-slate-400'>
-										No prescriptions were created for this encounter.
+										No prescriptions recorded for this medical record.
+									</p>
+								</CardContent>
+							</Card>
+						)}
+					</TabsContent>
+
+					{/* Lab Results Tab */}
+					<TabsContent
+						className='space-y-4'
+						value='lab-results'
+					>
+						{record.labRequest && record.labRequest.length > 0 ? (
+							record.labRequest.map(labTest => (
+								<Card key={labTest.id}>
+									<CardHeader>
+										<div className='flex flex-wrap items-start justify-between gap-2'>
+											<div>
+												<CardTitle className='text-lg'>
+													{labTest.service?.serviceName || "Lab Test"}
+												</CardTitle>
+												<CardDescription>
+													Test Date: {formatDate(labTest.testDate)}
+												</CardDescription>
+											</div>
+											<Badge
+												className={
+													labTest.status === "COMPLETED"
+														? "bg-green-100 text-green-700"
+														: labTest.status === "PENDING"
+															? "bg-yellow-100 text-yellow-700"
+															: "bg-red-100 text-red-700"
+												}
+											>
+												{labTest.status}
+											</Badge>
+										</div>
+									</CardHeader>
+									<CardContent className='space-y-3'>
+										{labTest.result && (
+											<div>
+												<h4 className='mb-1 font-medium text-sm'>Result</h4>
+												<p className='rounded-lg bg-slate-50 p-3 text-sm dark:bg-slate-800'>
+													{labTest.result}
+												</p>
+											</div>
+										)}
+										{labTest.notes && (
+											<div>
+												<h4 className='mb-1 font-medium text-sm'>Notes</h4>
+												<p className='text-sm'>{labTest.notes}</p>
+											</div>
+										)}
+									</CardContent>
+								</Card>
+							))
+						) : (
+							<Card>
+								<CardContent className='py-12 text-center'>
+									<TestTube className='mx-auto h-12 w-12 text-slate-400' />
+									<h3 className='mt-4 font-semibold text-lg'>No Lab Results</h3>
+									<p className='mt-2 text-slate-600 text-sm dark:text-slate-400'>
+										No lab results recorded for this medical record.
 									</p>
 								</CardContent>
 							</Card>
@@ -438,4 +518,8 @@ function EncounterDetailPage() {
 			</div>
 		</div>
 	);
+}
+
+function TestTube(props: React.SVGProps<SVGSVGElement>) {
+	return <svg {...props} />;
 }

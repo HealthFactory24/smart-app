@@ -1,15 +1,5 @@
 // src/routes/index.tsx
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getUpcomingAppointmentsCount, getDashboardUpcomingAppointments } from "@/data/appointments";
-import { getRecentEncounters } from "@/data/diagnosis";
-import { getClinicGrowthAlerts } from "@/data/growthRecord";
-import { getDueImmunizations } from "@/data/immunization";
-import { getRecentPatients } from "@/data/patients";
-import type { DbAppointment, DbDiagnosis, DbDoctor, DbImmunization, DbPatient } from "@/db/schema/types";
-import { formatDate } from "@/utils/formDate";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	Activity,
@@ -26,6 +16,16 @@ import {
 	UserPlus,
 	Users
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { getDashboardUpcomingAppointments, getUpcomingAppointmentsCount } from "@/data/appointments";
+import { getRecentEncounters } from "@/data/diagnosis";
+import { getClinicGrowthAlerts } from "@/data/growthRecord";
+import { getDueImmunizations } from "@/data/immunization";
+import { getRecentPatients } from "@/data/patients";
+import type { DbAppointment, DbDiagnosis, DbDoctor, DbImmunization, DbPatient } from "@/db/schema/types";
+import { formatDate } from "@/utils/formDate";
 
 export const Route = createFileRoute("/")({
 	beforeLoad: async ({ context }) => {

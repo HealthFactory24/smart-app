@@ -1,4 +1,8 @@
 // src/routes/encounters/index.tsx
+
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { Calendar, Filter, Plus, Search, Stethoscope, User } from "lucide-react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,9 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getAllEncounters } from "@/data/diagnosis";
 import { formatDate } from "@/utils/formDate";
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-import { Calendar, Filter, Plus, Search, Stethoscope, User } from "lucide-react";
-import { useState } from "react";
 
 export const Route = createFileRoute("/encounters/")({
 	beforeLoad: async ({ context }) => {
@@ -166,7 +167,7 @@ function EncountersListPage() {
 												</span>
 											</TableCell>
 											<TableCell>
-												<Badge className={getStatusColor(encounter.status)}>
+												<Badge className={getStatusColor(encounter.status ?? "")}>
 													{encounter.status || "ACTIVE"}
 												</Badge>
 											</TableCell>

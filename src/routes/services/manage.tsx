@@ -1,5 +1,10 @@
 // src/routes/services/manage.tsx
 
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -35,11 +40,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { createService, deleteService, getAllServices, updateService } from "@/data/services";
 import type { DbService } from "@/db/schema";
-import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/services/manage")({
 	beforeLoad: async ({ context }) => {
@@ -190,7 +190,7 @@ function ManageServicesPage() {
 					description: formData.description,
 					price: Number.parseFloat(formData.price),
 					duration: Number.parseInt(formData.duration, 10),
-					category: formData.category ??"",
+					category: formData.category ?? "",
 					isAvailable: formData.isAvailable,
 					icon: formData.icon,
 					color: formData.color
@@ -220,7 +220,7 @@ function ManageServicesPage() {
 					description: formData.description,
 					price: Number.parseFloat(formData.price),
 					duration: Number.parseInt(formData.duration, 10),
-					category: formData.category ??"",
+					category: formData.category ?? "",
 					isAvailable: formData.isAvailable,
 					icon: formData.icon,
 					color: formData.color

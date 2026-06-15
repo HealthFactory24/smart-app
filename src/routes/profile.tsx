@@ -16,7 +16,7 @@ import {
 	DialogDescription,
 	DialogFooter,
 	DialogHeader,
-	DialogTitle,
+	DialogTitle
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,18 +32,18 @@ import type { Session } from "@/lib/auth-client";
 const profileSchema = z.object({
 	name: z.string().min(2, "Name must be at least 2 characters"),
 	phone: z.string().optional(),
-	address: z.string().optional(),
+	address: z.string().optional()
 });
 
 const passwordSchema = z
 	.object({
 		currentPassword: z.string().min(1, "Current password is required"),
 		newPassword: z.string().min(8, "Password must be at least 8 characters"),
-		confirmPassword: z.string().min(1, "Please confirm your password"),
+		confirmPassword: z.string().min(1, "Please confirm your password")
 	})
-	.refine((data) => data.newPassword === data.confirmPassword, {
+	.refine(data => data.newPassword === data.confirmPassword, {
 		message: "Passwords don't match",
-		path: ["confirmPassword"],
+		path: ["confirmPassword"]
 	});
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -68,7 +68,7 @@ export const Route = createFileRoute("/profile")({
 		if (!session) throw redirect({ to: "/sign-in" });
 		return { user: session.user as ExtendedUser };
 	},
-	component: ProfilePage,
+	component: ProfilePage
 });
 
 function ProfilePage() {
@@ -82,7 +82,7 @@ function ProfilePage() {
 	const [editForm, setEditForm] = useState<ProfileFormValues>({
 		name: user.name,
 		phone: user.phone || "",
-		address: user.address || "",
+		address: user.address || ""
 	});
 
 	// Image state
@@ -93,7 +93,7 @@ function ProfilePage() {
 	const [passwordForm, setPasswordForm] = useState({
 		currentPassword: "",
 		newPassword: "",
-		confirmPassword: "",
+		confirmPassword: ""
 	});
 	const [passwordErrors, setPasswordErrors] = useState<Record<string, string>>({});
 
@@ -106,14 +106,14 @@ function ProfilePage() {
 		emailNotifications: true,
 		smsNotifications: false,
 		appointmentReminders: true,
-		marketingEmails: false,
+		marketingEmails: false
 	});
 
 	function openEditDialog() {
 		setEditForm({
 			name: user.name,
 			phone: user.phone || "",
-			address: user.address || "",
+			address: user.address || ""
 		});
 		setImagePreview(null);
 		setCompressedFile(null);
@@ -140,7 +140,7 @@ function ProfilePage() {
 			const compressed = await imageCompression(file, {
 				maxSizeMB: 0.5,
 				maxWidthOrHeight: 800,
-				useWebWorker: true,
+				useWebWorker: true
 			});
 			setCompressedFile(compressed);
 			setImagePreview(URL.createObjectURL(compressed));
@@ -160,7 +160,7 @@ function ProfilePage() {
 				const formData = new FormData();
 				formData.append("file", compressedFile);
 				const uploadedUser = await uploadProfileImage({
-					data: formData,
+					data: formData
 				});
 				imageUrl = uploadedUser.image || undefined;
 			}
@@ -170,8 +170,8 @@ function ProfilePage() {
 					name: editForm.name,
 					phone: editForm.phone || undefined,
 					address: editForm.address || undefined,
-					...(imageUrl ? { image: imageUrl } : {}),
-				},
+					...(imageUrl ? { image: imageUrl } : {})
+				}
 			});
 
 			await router.invalidate();
@@ -190,7 +190,7 @@ function ProfilePage() {
 		const result = passwordSchema.safeParse(passwordForm);
 		if (!result.success) {
 			const errors: Record<string, string> = {};
-			result.error.issues.forEach((issue) => {
+			result.error.issues.forEach(issue => {
 				if (issue.path[0]) {
 					errors[issue.path[0] as string] = issue.message;
 				}
@@ -202,7 +202,7 @@ function ProfilePage() {
 		setIsChangingPassword(true);
 		try {
 			// Call your password change API here
-			await new Promise((resolve) => setTimeout(resolve, 1000));
+			await new Promise(resolve => setTimeout(resolve, 1000));
 
 			setIsPasswordOpen(false);
 			setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
@@ -216,14 +216,14 @@ function ProfilePage() {
 	}
 
 	async function handleNotificationChange(key: keyof typeof notifications) {
-		setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
+		setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
 		toast.success("Preferences saved");
 	}
 
 	const memberSince = new Date(user.createdAt).toLocaleDateString("en-US", {
 		year: "numeric",
 		month: "long",
-		day: "numeric",
+		day: "numeric"
 	});
 
 	const getRoleBadge = () => {
@@ -231,23 +231,23 @@ function ProfilePage() {
 			admin: {
 				label: "Administrator",
 				color: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-				icon: Shield,
+				icon: Shield
 			},
 			doctor: {
 				label: "Medical Doctor",
 				color: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-				icon: User,
+				icon: User
 			},
 			staff: {
 				label: "Staff Member",
 				color: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-				icon: User,
+				icon: User
 			},
 			patient: {
 				label: "Patient",
 				color: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-				icon: User,
-			},
+				icon: User
+			}
 		};
 		const config = roleConfig[user.role] || roleConfig.patient;
 		const Icon = config.icon;
@@ -269,7 +269,10 @@ function ProfilePage() {
 				<p className='text-slate-500 text-sm'>Manage your account settings and preferences</p>
 			</div>
 
-			<Tabs className='space-y-6' defaultValue='profile'>
+			<Tabs
+				className='space-y-6'
+				defaultValue='profile'
+			>
 				<TabsList className='grid w-full max-w-md grid-cols-3'>
 					<TabsTrigger value='profile'>Profile</TabsTrigger>
 					<TabsTrigger value='security'>Security</TabsTrigger>
@@ -277,7 +280,10 @@ function ProfilePage() {
 				</TabsList>
 
 				{/* Profile Tab */}
-				<TabsContent className='space-y-6' value='profile'>
+				<TabsContent
+					className='space-y-6'
+					value='profile'
+				>
 					{/* Profile Card */}
 					<Card>
 						<CardHeader className='flex flex-row items-center justify-between'>
@@ -285,8 +291,15 @@ function ProfilePage() {
 								<CardTitle>Personal Information</CardTitle>
 								<CardDescription>View and manage your personal details</CardDescription>
 							</div>
-							<Button onClick={openEditDialog} size='sm' variant='outline'>
-								<Pencil className='mr-2' size={14} />
+							<Button
+								onClick={openEditDialog}
+								size='sm'
+								variant='outline'
+							>
+								<Pencil
+									className='mr-2'
+									size={14}
+								/>
 								Edit Profile
 							</Button>
 						</CardHeader>
@@ -295,7 +308,10 @@ function ProfilePage() {
 							{/* Avatar + Name Section */}
 							<div className='flex flex-col gap-6 sm:flex-row sm:items-center'>
 								<Avatar className='h-20 w-20 border-2 border-slate-200 dark:border-slate-700'>
-									<AvatarImage alt={user.name} src={user.image || undefined} />
+									<AvatarImage
+										alt={user.name}
+										src={user.image || undefined}
+									/>
 									<AvatarFallback className='bg-primary/10 text-primary text-xl'>
 										{user.name.charAt(0).toUpperCase()}
 									</AvatarFallback>
@@ -322,7 +338,10 @@ function ProfilePage() {
 									</div>
 									<p className='font-medium'>{user.email}</p>
 									{user.emailVerified && (
-										<Badge className='text-emerald-600 text-xs' variant='outline'>
+										<Badge
+											className='text-emerald-600 text-xs'
+											variant='outline'
+										>
 											Verified
 										</Badge>
 									)}
@@ -402,7 +421,10 @@ function ProfilePage() {
 				</TabsContent>
 
 				{/* Security Tab */}
-				<TabsContent className='space-y-6' value='security'>
+				<TabsContent
+					className='space-y-6'
+					value='security'
+				>
 					<Card>
 						<CardHeader>
 							<CardTitle>Password & Security</CardTitle>
@@ -416,7 +438,10 @@ function ProfilePage() {
 										Update your password to keep your account secure
 									</p>
 								</div>
-								<Button onClick={() => setIsPasswordOpen(true)} variant='outline'>
+								<Button
+									onClick={() => setIsPasswordOpen(true)}
+									variant='outline'
+								>
 									Change Password
 								</Button>
 							</div>
@@ -430,7 +455,10 @@ function ProfilePage() {
 										Add an extra layer of security to your account
 									</p>
 								</div>
-								<Button disabled variant='outline'>
+								<Button
+									disabled
+									variant='outline'
+								>
 									Coming Soon
 								</Button>
 							</div>
@@ -440,11 +468,12 @@ function ProfilePage() {
 							<div className='flex items-center justify-between'>
 								<div>
 									<p className='font-medium'>Active Sessions</p>
-									<p className='text-slate-500 text-sm'>
-										Manage devices where you're logged in
-									</p>
+									<p className='text-slate-500 text-sm'>Manage devices where you're logged in</p>
 								</div>
-								<Button disabled variant='outline'>
+								<Button
+									disabled
+									variant='outline'
+								>
 									Manage Sessions
 								</Button>
 							</div>
@@ -453,7 +482,10 @@ function ProfilePage() {
 				</TabsContent>
 
 				{/* Notifications Tab */}
-				<TabsContent className='space-y-6' value='notifications'>
+				<TabsContent
+					className='space-y-6'
+					value='notifications'
+				>
 					<Card>
 						<CardHeader>
 							<CardTitle>Notification Preferences</CardTitle>
@@ -489,9 +521,7 @@ function ProfilePage() {
 							<div className='flex items-center justify-between'>
 								<div className='space-y-0.5'>
 									<Label className='font-medium'>Appointment Reminders</Label>
-									<p className='text-slate-500 text-sm'>
-										Receive reminders before your appointments
-									</p>
+									<p className='text-slate-500 text-sm'>Receive reminders before your appointments</p>
 								</div>
 								<Switch
 									checked={notifications.appointmentReminders}
@@ -517,13 +547,14 @@ function ProfilePage() {
 			</Tabs>
 
 			{/* Edit Profile Dialog */}
-			<Dialog onOpenChange={setIsEditOpen} open={isEditOpen}>
+			<Dialog
+				onOpenChange={setIsEditOpen}
+				open={isEditOpen}
+			>
 				<DialogContent className='max-h-[90vh] overflow-y-auto sm:max-w-lg'>
 					<DialogHeader>
 						<DialogTitle>Edit Profile</DialogTitle>
-						<DialogDescription>
-							Update your personal information and profile picture
-						</DialogDescription>
+						<DialogDescription>Update your personal information and profile picture</DialogDescription>
 					</DialogHeader>
 
 					<div className='space-y-5 py-3'>
@@ -534,9 +565,15 @@ function ProfilePage() {
 								<div className='relative'>
 									<Avatar className='h-20 w-20 border-2 border-slate-200 dark:border-slate-700'>
 										{imagePreview ? (
-											<AvatarImage alt='Preview' src={imagePreview} />
+											<AvatarImage
+												alt='Preview'
+												src={imagePreview}
+											/>
 										) : user.image ? (
-											<AvatarImage alt={user.name} src={user.image} />
+											<AvatarImage
+												alt={user.name}
+												src={user.image}
+											/>
 										) : (
 											<AvatarFallback className='bg-primary/10 text-primary text-xl'>
 												{user.name.charAt(0).toUpperCase()}
@@ -566,9 +603,7 @@ function ProfilePage() {
 											type='file'
 										/>
 									</label>
-									<p className='mt-1 text-muted-foreground text-xs'>
-										JPG, PNG or GIF. Max 5MB.
-									</p>
+									<p className='mt-1 text-muted-foreground text-xs'>JPG, PNG or GIF. Max 5MB.</p>
 								</div>
 							</div>
 						</div>
@@ -580,7 +615,7 @@ function ProfilePage() {
 							<Label htmlFor='edit-name'>Full Name *</Label>
 							<Input
 								id='edit-name'
-								onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+								onChange={e => setEditForm(prev => ({ ...prev, name: e.target.value }))}
 								placeholder='Your full name'
 								value={editForm.name}
 							/>
@@ -591,7 +626,7 @@ function ProfilePage() {
 							<Label htmlFor='edit-phone'>Phone Number</Label>
 							<Input
 								id='edit-phone'
-								onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
+								onChange={e => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
 								placeholder='+1 (555) 000-0000'
 								type='tel'
 								value={editForm.phone}
@@ -603,7 +638,7 @@ function ProfilePage() {
 							<Label htmlFor='edit-address'>Address</Label>
 							<Input
 								id='edit-address'
-								onChange={(e) => setEditForm((prev) => ({ ...prev, address: e.target.value }))}
+								onChange={e => setEditForm(prev => ({ ...prev, address: e.target.value }))}
 								placeholder='Your street address'
 								value={editForm.address}
 							/>
@@ -626,15 +661,25 @@ function ProfilePage() {
 					</div>
 
 					<DialogFooter>
-						<Button disabled={isSaving} onClick={() => setIsEditOpen(false)} variant='outline'>
+						<Button
+							disabled={isSaving}
+							onClick={() => setIsEditOpen(false)}
+							variant='outline'
+						>
 							Cancel
 						</Button>
-						<Button disabled={isSaving} onClick={handleSave}>
+						<Button
+							disabled={isSaving}
+							onClick={handleSave}
+						>
 							{isSaving ? (
 								<>Saving...</>
 							) : (
 								<>
-									<Save className='mr-2' size={14} />
+									<Save
+										className='mr-2'
+										size={14}
+									/>
 									Save Changes
 								</>
 							)}
@@ -644,13 +689,14 @@ function ProfilePage() {
 			</Dialog>
 
 			{/* Change Password Dialog */}
-			<Dialog onOpenChange={setIsPasswordOpen} open={isPasswordOpen}>
+			<Dialog
+				onOpenChange={setIsPasswordOpen}
+				open={isPasswordOpen}
+			>
 				<DialogContent className='sm:max-w-md'>
 					<DialogHeader>
 						<DialogTitle>Change Password</DialogTitle>
-						<DialogDescription>
-							Enter your current password and choose a new one
-						</DialogDescription>
+						<DialogDescription>Enter your current password and choose a new one</DialogDescription>
 					</DialogHeader>
 
 					<div className='space-y-4 py-3'>
@@ -658,9 +704,7 @@ function ProfilePage() {
 							<Label htmlFor='current-password'>Current Password</Label>
 							<Input
 								id='current-password'
-								onChange={(e) =>
-									setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
-								}
+								onChange={e => setPasswordForm(prev => ({ ...prev, currentPassword: e.target.value }))}
 								type='password'
 								value={passwordForm.currentPassword}
 							/>
@@ -673,9 +717,7 @@ function ProfilePage() {
 							<Label htmlFor='new-password'>New Password</Label>
 							<Input
 								id='new-password'
-								onChange={(e) =>
-									setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))
-								}
+								onChange={e => setPasswordForm(prev => ({ ...prev, newPassword: e.target.value }))}
 								type='password'
 								value={passwordForm.newPassword}
 							/>
@@ -688,9 +730,7 @@ function ProfilePage() {
 							<Label htmlFor='confirm-password'>Confirm New Password</Label>
 							<Input
 								id='confirm-password'
-								onChange={(e) =>
-									setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))
-								}
+								onChange={e => setPasswordForm(prev => ({ ...prev, confirmPassword: e.target.value }))}
 								type='password'
 								value={passwordForm.confirmPassword}
 							/>
@@ -715,7 +755,10 @@ function ProfilePage() {
 						>
 							Cancel
 						</Button>
-						<Button disabled={isChangingPassword} onClick={handlePasswordChange}>
+						<Button
+							disabled={isChangingPassword}
+							onClick={handlePasswordChange}
+						>
 							{isChangingPassword ? "Changing..." : "Change Password"}
 						</Button>
 					</DialogFooter>

@@ -1,10 +1,10 @@
-import { addToCart } from "#/data/cart";
-import type { ProductSelect } from "#/db/schema";
-import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useRouter } from "@tanstack/react-router";
 import { ShoppingBagIcon } from "lucide-react";
 import { useState } from "react";
+import { addToCart } from "#/data/cart";
+import type { ProductSelect } from "#/db/schema";
+import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 export const cartCountQueryKey = ["cart-count"] as const;

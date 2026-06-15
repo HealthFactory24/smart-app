@@ -1,4 +1,10 @@
 // src/routes/appointments/manage.tsx
+
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { Calendar, CheckCircle, Clock, Eye, MoreHorizontal, XCircle } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,19 +24,14 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
-import type { getAppointmentById } from "@/data/appointments";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import type { getAppointmentById } from "@/data/appointments";
 import { cancelAppointment, getAllAppointments, updateAppointmentStatus } from "@/data/appointments";
 import { formatDate, formatTime } from "@/utils/formDate";
-import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
-import { type ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { Calendar, CheckCircle, Clock, Eye, MoreHorizontal, XCircle } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import type { AppointmentStatus } from '../../db/schema';
+import type { AppointmentStatus } from "../../db/schema";
 
 type AppointmentDetail = Awaited<ReturnType<typeof getAppointmentById>>;
 
@@ -69,7 +70,7 @@ function ManageAppointmentsPage() {
 	const [cancelReason, setCancelReason] = useState("");
 	const [showCancelDialog, setShowCancelDialog] = useState(false);
 
-	const columns: ColumnDef<typeof appointments[number]>[] = [
+	const columns: ColumnDef<(typeof appointments)[number]>[] = [
 		{
 			accessorKey: "appointmentDate",
 			header: "Date & Time",
@@ -139,7 +140,9 @@ function ManageAppointmentsPage() {
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align='end'>
 						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem onClick={() => setSelectedAppointment(row.original as unknown as AppointmentDetail)}>
+						<DropdownMenuItem
+							onClick={() => setSelectedAppointment(row.original as unknown as AppointmentDetail)}
+						>
 							<Eye className='mr-2 h-4 w-4' />
 							View Details
 						</DropdownMenuItem>
@@ -189,7 +192,7 @@ function ManageAppointmentsPage() {
 			await router.invalidate();
 			toast.success(`Appointment ${status.toLowerCase()} successfully`);
 		} catch (error) {
-      console.error(error)
+			console.error(error);
 			toast.error("Failed to update appointment status");
 		} finally {
 			setIsUpdating(false);
@@ -209,7 +212,7 @@ function ManageAppointmentsPage() {
 			setCancelReason("");
 			setSelectedAppointment(null);
 		} catch (error) {
-      console.error(error)
+			console.error(error);
 			toast.error("Failed to cancel appointment");
 		} finally {
 			setIsUpdating(false);
@@ -344,7 +347,11 @@ function ManageAppointmentsPage() {
 								</div>
 								<div>
 									<Label className='text-slate-500 text-xs'>Status</Label>
-									<Badge className={statusColors[selectedAppointment.status as keyof typeof statusColors]}>
+									<Badge
+										className={
+											statusColors[selectedAppointment.status as keyof typeof statusColors]
+										}
+									>
 										{selectedAppointment.status}
 									</Badge>
 								</div>

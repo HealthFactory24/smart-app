@@ -7,7 +7,7 @@ import { getAppointmentsCount } from "#/data/appointments";
 import { signOut } from "#/lib/auth-client";
 import { Route as RootRoute } from "@/routes/__root";
 
-export const appointmentsCountQueryKey = ["appointments-count"] as const;
+const appointmentsCountQueryKey = ["appointments-count"] as const;
 
 export default function Header() {
 	const { session } = RootRoute.useRouteContext();
@@ -119,7 +119,7 @@ export default function Header() {
 										</p>
 										<p className='truncate text-slate-500 text-xs'>{session.user.email}</p>
 										{session.user.role === "admin" && (
-											<span className='mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'>
+											<span className='mt-1 inline-block rounded-full bg-amber-100 px-2 py-0.5 font-medium text-[10px] text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'>
 												Medical Staff
 											</span>
 										)}
@@ -130,7 +130,10 @@ export default function Header() {
 										onClick={() => setIsUserMenuOpen(false)}
 										to='/profile'
 									>
-										<Calendar size={14} className='mr-2 inline' />
+										<Calendar
+											className='mr-2 inline'
+											size={14}
+										/>
 										My Profile
 									</Link>
 
@@ -139,14 +142,17 @@ export default function Header() {
 										onClick={() => setIsUserMenuOpen(false)}
 										to='/appointments'
 									>
-										<Calendar size={14} className='mr-2 inline' />
+										<Calendar
+											className='mr-2 inline'
+											size={14}
+										/>
 										Appointment History
 									</Link>
 
 									{session?.user.role === "admin" && (
 										<>
-											<div className='border-slate-100 border-t my-2 dark:border-slate-800' />
-											<p className='px-3 py-1 text-[10px] font-semibold uppercase text-slate-400'>
+											<div className='my-2 border-slate-100 border-t dark:border-slate-800' />
+											<p className='px-3 py-1 font-semibold text-[10px] text-slate-400 uppercase'>
 												Admin Panel
 											</p>
 
@@ -155,7 +161,10 @@ export default function Header() {
 												onClick={() => setIsUserMenuOpen(false)}
 												to='/services/manage'
 											>
-												<Stethoscope size={14} className='mr-2 inline' />
+												<Stethoscope
+													className='mr-2 inline'
+													size={14}
+												/>
 												Manage Services
 											</Link>
 
@@ -164,7 +173,10 @@ export default function Header() {
 												onClick={() => setIsUserMenuOpen(false)}
 												to='/appointments/manage'
 											>
-												<Users size={14} className='mr-2 inline' />
+												<Users
+													className='mr-2 inline'
+													size={14}
+												/>
 												Manage Appointments
 											</Link>
 										</>

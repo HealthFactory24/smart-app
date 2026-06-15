@@ -1,5 +1,5 @@
 import { useSelector } from "@tanstack/react-store";
-import * as React from "react";
+import type * as React from "react";
 
 import { FieldDescription, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input"; // Assuming you have a standard Input component

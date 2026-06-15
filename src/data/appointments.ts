@@ -497,3 +497,37 @@ export const getAvailableTimeSlots = createServerFn({ method: "POST" })
 
 		return slots;
 	});
+
+// Get all appointments for a specific patient
+export const getPatientAppointments = createServerFn({ method: "GET" })
+	.validator((patientId: string) => patientId)
+	.handler(async ({ data: patientId }) => {
+		const session = await getSession();
+		if (!session) throw new Error("Unauthorized");
+
+		const { db } = await import("@/db");
+
+		const results = await db
+			.select({
+				id: appointment.id,
+				appointmentDate: appointment.appointmentDate,
+				time: appointment.time,
+				status: appointment.status,
+				type: appointment.type,
+				reason: appointment.reason,
+				doctorName: doctor.name,
+				doctorSpecialty: doctor.specialty,
+				appointmentPrice: appointment.appointmentPrice,
+			})
+			.from(appointment)
+			.innerJoin(doctor, eq(appointment.doctorId, doctor.id))
+			.where(
+				and(
+					eq(appointment.patientId, patientId),
+					eq(appointment.isDeleted, false)
+				)
+			)
+			.orderBy(desc(appointment.appointmentDate));
+
+		return results;
+	});

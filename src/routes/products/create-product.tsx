@@ -1,3 +1,4 @@
+/** biome-ignore-all lint/suspicious/noExplicitAny: <ok> */
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -41,7 +42,15 @@ function FieldMessage({ error }: { error?: string }) {
 	return <p className='text-destructive text-sm'>{error}</p>;
 }
 
-function FormField({ field, label, children }: { field: FieldApi<any, any, any, any>; label: string; children: React.ReactNode }) {
+function FormField({
+	field,
+	label,
+	children
+}: {
+	field: FieldApi<any, any, any, any>;
+	label: string;
+	children: React.ReactNode;
+}) {
 	const error = field.state.meta.isTouched ? (field.state.meta.errors[0] as string | undefined) : undefined;
 
 	return (

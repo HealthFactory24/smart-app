@@ -1,8 +1,8 @@
 // hooks/usePrescriptionFilters.ts
 
+import { useMemo, useState } from "react";
 import type { DataToolbarProps } from "@/components/DataToolbar";
 import type { DbDiagnosis, DbDoctor, DbPatient, DbPrescription } from "@/db/schema/types";
-import { useMemo, useState } from "react";
 
 export type PrescriptionWithRelation = DbPrescription & {
 	patient?: DbPatient | null;

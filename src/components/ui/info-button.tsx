@@ -1,7 +1,6 @@
 import * as React from "react";
-
+import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
-import { Icons } from "@/components/ui/icons";
 import { type InfobarContent, useInfobar } from "@/components/ui/infobar";
 import { cn } from "@/lib/utils";
 

@@ -1,8 +1,8 @@
 // hooks/useAppointmentFilters.ts
 
+import { useMemo, useState } from "react";
 import type { DataToolbarProps } from "@/components/DataToolbar";
 import type { getMyAppointments } from "@/data/appointments";
-import { useMemo, useState } from "react";
 
 const SORT_OPTIONS = [
 	{ label: "Date (newest first)", value: "date-desc" },

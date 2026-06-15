@@ -4,7 +4,7 @@ import { Minus, Plus, ShoppingBag } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { clearCart, fetchCartItems, removeFromCart, updateCartQuantity } from "#/data/cart";
- import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { createCheckoutSession } from "@/data/checkout";
 

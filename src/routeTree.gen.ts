@@ -16,8 +16,10 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServicesIndexRouteImport } from './routes/services/index'
 import { Route as ProductsIndexRouteImport } from './routes/products/index'
+import { Route as PrescriptionsIndexRouteImport } from './routes/prescriptions/index'
 import { Route as PatientsIndexRouteImport } from './routes/patients/index'
 import { Route as OrdersIndexRouteImport } from './routes/orders/index'
+import { Route as MedicalRecordsIndexRouteImport } from './routes/medical-records/index'
 import { Route as EncountersIndexRouteImport } from './routes/encounters/index'
 import { Route as AppointmentsIndexRouteImport } from './routes/appointments/index'
 import { Route as ServicesManageRouteImport } from './routes/services/manage'
@@ -25,9 +27,14 @@ import { Route as ServicesIdRouteImport } from './routes/services/$id'
 import { Route as ProductsManageProductsRouteImport } from './routes/products/manage-products'
 import { Route as ProductsCreateProductRouteImport } from './routes/products/create-product'
 import { Route as ProductsIdRouteImport } from './routes/products/$id'
+import { Route as PrescriptionsNewRouteImport } from './routes/prescriptions/new'
+import { Route as PrescriptionsManageRouteImport } from './routes/prescriptions/manage'
+import { Route as PrescriptionsIdRouteImport } from './routes/prescriptions/$id'
 import { Route as PatientsNewRouteImport } from './routes/patients/new'
 import { Route as PatientsIdRouteImport } from './routes/patients/$id'
 import { Route as OrdersManageOrdersRouteImport } from './routes/orders/manage-orders'
+import { Route as MedicalRecordsNewRouteImport } from './routes/medical-records/new'
+import { Route as MedicalRecordsIdRouteImport } from './routes/medical-records/$id'
 import { Route as EncountersNewRouteImport } from './routes/encounters/new'
 import { Route as EncountersIdRouteImport } from './routes/encounters/$id'
 import { Route as CheckoutSuccessRouteImport } from './routes/checkout/success'
@@ -35,7 +42,10 @@ import { Route as CheckoutCancelRouteImport } from './routes/checkout/cancel'
 import { Route as AppointmentsManageRouteImport } from './routes/appointments/manage'
 import { Route as AppointmentsBookRouteImport } from './routes/appointments/book'
 import { Route as AppointmentsIdRouteImport } from './routes/appointments/$id'
+import { Route as PrescriptionsIdEditRouteImport } from './routes/prescriptions/$id.edit'
 import { Route as PatientsIdEditRouteImport } from './routes/patients/$id.edit'
+import { Route as MedicalRecordsIdEditRouteImport } from './routes/medical-records/$id.edit'
+import { Route as EncountersIdEditRouteImport } from './routes/encounters/$id.edit'
 import { Route as AppointmentsIdCancelRouteImport } from './routes/appointments/$id.cancel'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
@@ -74,6 +84,11 @@ const ProductsIndexRoute = ProductsIndexRouteImport.update({
   path: '/products/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrescriptionsIndexRoute = PrescriptionsIndexRouteImport.update({
+  id: '/prescriptions/',
+  path: '/prescriptions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PatientsIndexRoute = PatientsIndexRouteImport.update({
   id: '/patients/',
   path: '/patients/',
@@ -82,6 +97,11 @@ const PatientsIndexRoute = PatientsIndexRouteImport.update({
 const OrdersIndexRoute = OrdersIndexRouteImport.update({
   id: '/orders/',
   path: '/orders/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MedicalRecordsIndexRoute = MedicalRecordsIndexRouteImport.update({
+  id: '/medical-records/',
+  path: '/medical-records/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EncountersIndexRoute = EncountersIndexRouteImport.update({
@@ -119,6 +139,21 @@ const ProductsIdRoute = ProductsIdRouteImport.update({
   path: '/products/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrescriptionsNewRoute = PrescriptionsNewRouteImport.update({
+  id: '/prescriptions/new',
+  path: '/prescriptions/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrescriptionsManageRoute = PrescriptionsManageRouteImport.update({
+  id: '/prescriptions/manage',
+  path: '/prescriptions/manage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrescriptionsIdRoute = PrescriptionsIdRouteImport.update({
+  id: '/prescriptions/$id',
+  path: '/prescriptions/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PatientsNewRoute = PatientsNewRouteImport.update({
   id: '/patients/new',
   path: '/patients/new',
@@ -132,6 +167,16 @@ const PatientsIdRoute = PatientsIdRouteImport.update({
 const OrdersManageOrdersRoute = OrdersManageOrdersRouteImport.update({
   id: '/orders/manage-orders',
   path: '/orders/manage-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MedicalRecordsNewRoute = MedicalRecordsNewRouteImport.update({
+  id: '/medical-records/new',
+  path: '/medical-records/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MedicalRecordsIdRoute = MedicalRecordsIdRouteImport.update({
+  id: '/medical-records/$id',
+  path: '/medical-records/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EncountersNewRoute = EncountersNewRouteImport.update({
@@ -169,10 +214,25 @@ const AppointmentsIdRoute = AppointmentsIdRouteImport.update({
   path: '/appointments/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrescriptionsIdEditRoute = PrescriptionsIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => PrescriptionsIdRoute,
+} as any)
 const PatientsIdEditRoute = PatientsIdEditRouteImport.update({
   id: '/edit',
   path: '/edit',
   getParentRoute: () => PatientsIdRoute,
+} as any)
+const MedicalRecordsIdEditRoute = MedicalRecordsIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => MedicalRecordsIdRoute,
+} as any)
+const EncountersIdEditRoute = EncountersIdEditRouteImport.update({
+  id: '/edit',
+  path: '/edit',
+  getParentRoute: () => EncountersIdRoute,
 } as any)
 const AppointmentsIdCancelRoute = AppointmentsIdCancelRouteImport.update({
   id: '/cancel',
@@ -196,11 +256,16 @@ export interface FileRoutesByFullPath {
   '/appointments/manage': typeof AppointmentsManageRoute
   '/checkout/cancel': typeof CheckoutCancelRoute
   '/checkout/success': typeof CheckoutSuccessRoute
-  '/encounters/$id': typeof EncountersIdRoute
+  '/encounters/$id': typeof EncountersIdRouteWithChildren
   '/encounters/new': typeof EncountersNewRoute
+  '/medical-records/$id': typeof MedicalRecordsIdRouteWithChildren
+  '/medical-records/new': typeof MedicalRecordsNewRoute
   '/orders/manage-orders': typeof OrdersManageOrdersRoute
   '/patients/$id': typeof PatientsIdRouteWithChildren
   '/patients/new': typeof PatientsNewRoute
+  '/prescriptions/$id': typeof PrescriptionsIdRouteWithChildren
+  '/prescriptions/manage': typeof PrescriptionsManageRoute
+  '/prescriptions/new': typeof PrescriptionsNewRoute
   '/products/$id': typeof ProductsIdRoute
   '/products/create-product': typeof ProductsCreateProductRoute
   '/products/manage-products': typeof ProductsManageProductsRoute
@@ -208,13 +273,18 @@ export interface FileRoutesByFullPath {
   '/services/manage': typeof ServicesManageRoute
   '/appointments/': typeof AppointmentsIndexRoute
   '/encounters/': typeof EncountersIndexRoute
+  '/medical-records/': typeof MedicalRecordsIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/patients/': typeof PatientsIndexRoute
+  '/prescriptions/': typeof PrescriptionsIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/appointments/$id/cancel': typeof AppointmentsIdCancelRoute
+  '/encounters/$id/edit': typeof EncountersIdEditRoute
+  '/medical-records/$id/edit': typeof MedicalRecordsIdEditRoute
   '/patients/$id/edit': typeof PatientsIdEditRoute
+  '/prescriptions/$id/edit': typeof PrescriptionsIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -227,11 +297,16 @@ export interface FileRoutesByTo {
   '/appointments/manage': typeof AppointmentsManageRoute
   '/checkout/cancel': typeof CheckoutCancelRoute
   '/checkout/success': typeof CheckoutSuccessRoute
-  '/encounters/$id': typeof EncountersIdRoute
+  '/encounters/$id': typeof EncountersIdRouteWithChildren
   '/encounters/new': typeof EncountersNewRoute
+  '/medical-records/$id': typeof MedicalRecordsIdRouteWithChildren
+  '/medical-records/new': typeof MedicalRecordsNewRoute
   '/orders/manage-orders': typeof OrdersManageOrdersRoute
   '/patients/$id': typeof PatientsIdRouteWithChildren
   '/patients/new': typeof PatientsNewRoute
+  '/prescriptions/$id': typeof PrescriptionsIdRouteWithChildren
+  '/prescriptions/manage': typeof PrescriptionsManageRoute
+  '/prescriptions/new': typeof PrescriptionsNewRoute
   '/products/$id': typeof ProductsIdRoute
   '/products/create-product': typeof ProductsCreateProductRoute
   '/products/manage-products': typeof ProductsManageProductsRoute
@@ -239,13 +314,18 @@ export interface FileRoutesByTo {
   '/services/manage': typeof ServicesManageRoute
   '/appointments': typeof AppointmentsIndexRoute
   '/encounters': typeof EncountersIndexRoute
+  '/medical-records': typeof MedicalRecordsIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/patients': typeof PatientsIndexRoute
+  '/prescriptions': typeof PrescriptionsIndexRoute
   '/products': typeof ProductsIndexRoute
   '/services': typeof ServicesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/appointments/$id/cancel': typeof AppointmentsIdCancelRoute
+  '/encounters/$id/edit': typeof EncountersIdEditRoute
+  '/medical-records/$id/edit': typeof MedicalRecordsIdEditRoute
   '/patients/$id/edit': typeof PatientsIdEditRoute
+  '/prescriptions/$id/edit': typeof PrescriptionsIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -259,11 +339,16 @@ export interface FileRoutesById {
   '/appointments/manage': typeof AppointmentsManageRoute
   '/checkout/cancel': typeof CheckoutCancelRoute
   '/checkout/success': typeof CheckoutSuccessRoute
-  '/encounters/$id': typeof EncountersIdRoute
+  '/encounters/$id': typeof EncountersIdRouteWithChildren
   '/encounters/new': typeof EncountersNewRoute
+  '/medical-records/$id': typeof MedicalRecordsIdRouteWithChildren
+  '/medical-records/new': typeof MedicalRecordsNewRoute
   '/orders/manage-orders': typeof OrdersManageOrdersRoute
   '/patients/$id': typeof PatientsIdRouteWithChildren
   '/patients/new': typeof PatientsNewRoute
+  '/prescriptions/$id': typeof PrescriptionsIdRouteWithChildren
+  '/prescriptions/manage': typeof PrescriptionsManageRoute
+  '/prescriptions/new': typeof PrescriptionsNewRoute
   '/products/$id': typeof ProductsIdRoute
   '/products/create-product': typeof ProductsCreateProductRoute
   '/products/manage-products': typeof ProductsManageProductsRoute
@@ -271,13 +356,18 @@ export interface FileRoutesById {
   '/services/manage': typeof ServicesManageRoute
   '/appointments/': typeof AppointmentsIndexRoute
   '/encounters/': typeof EncountersIndexRoute
+  '/medical-records/': typeof MedicalRecordsIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/patients/': typeof PatientsIndexRoute
+  '/prescriptions/': typeof PrescriptionsIndexRoute
   '/products/': typeof ProductsIndexRoute
   '/services/': typeof ServicesIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/appointments/$id/cancel': typeof AppointmentsIdCancelRoute
+  '/encounters/$id/edit': typeof EncountersIdEditRoute
+  '/medical-records/$id/edit': typeof MedicalRecordsIdEditRoute
   '/patients/$id/edit': typeof PatientsIdEditRoute
+  '/prescriptions/$id/edit': typeof PrescriptionsIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -294,9 +384,14 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/encounters/$id'
     | '/encounters/new'
+    | '/medical-records/$id'
+    | '/medical-records/new'
     | '/orders/manage-orders'
     | '/patients/$id'
     | '/patients/new'
+    | '/prescriptions/$id'
+    | '/prescriptions/manage'
+    | '/prescriptions/new'
     | '/products/$id'
     | '/products/create-product'
     | '/products/manage-products'
@@ -304,13 +399,18 @@ export interface FileRouteTypes {
     | '/services/manage'
     | '/appointments/'
     | '/encounters/'
+    | '/medical-records/'
     | '/orders/'
     | '/patients/'
+    | '/prescriptions/'
     | '/products/'
     | '/services/'
     | '/api/auth/$'
     | '/appointments/$id/cancel'
+    | '/encounters/$id/edit'
+    | '/medical-records/$id/edit'
     | '/patients/$id/edit'
+    | '/prescriptions/$id/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -325,9 +425,14 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/encounters/$id'
     | '/encounters/new'
+    | '/medical-records/$id'
+    | '/medical-records/new'
     | '/orders/manage-orders'
     | '/patients/$id'
     | '/patients/new'
+    | '/prescriptions/$id'
+    | '/prescriptions/manage'
+    | '/prescriptions/new'
     | '/products/$id'
     | '/products/create-product'
     | '/products/manage-products'
@@ -335,13 +440,18 @@ export interface FileRouteTypes {
     | '/services/manage'
     | '/appointments'
     | '/encounters'
+    | '/medical-records'
     | '/orders'
     | '/patients'
+    | '/prescriptions'
     | '/products'
     | '/services'
     | '/api/auth/$'
     | '/appointments/$id/cancel'
+    | '/encounters/$id/edit'
+    | '/medical-records/$id/edit'
     | '/patients/$id/edit'
+    | '/prescriptions/$id/edit'
   id:
     | '__root__'
     | '/'
@@ -356,9 +466,14 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/encounters/$id'
     | '/encounters/new'
+    | '/medical-records/$id'
+    | '/medical-records/new'
     | '/orders/manage-orders'
     | '/patients/$id'
     | '/patients/new'
+    | '/prescriptions/$id'
+    | '/prescriptions/manage'
+    | '/prescriptions/new'
     | '/products/$id'
     | '/products/create-product'
     | '/products/manage-products'
@@ -366,13 +481,18 @@ export interface FileRouteTypes {
     | '/services/manage'
     | '/appointments/'
     | '/encounters/'
+    | '/medical-records/'
     | '/orders/'
     | '/patients/'
+    | '/prescriptions/'
     | '/products/'
     | '/services/'
     | '/api/auth/$'
     | '/appointments/$id/cancel'
+    | '/encounters/$id/edit'
+    | '/medical-records/$id/edit'
     | '/patients/$id/edit'
+    | '/prescriptions/$id/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -386,11 +506,16 @@ export interface RootRouteChildren {
   AppointmentsManageRoute: typeof AppointmentsManageRoute
   CheckoutCancelRoute: typeof CheckoutCancelRoute
   CheckoutSuccessRoute: typeof CheckoutSuccessRoute
-  EncountersIdRoute: typeof EncountersIdRoute
+  EncountersIdRoute: typeof EncountersIdRouteWithChildren
   EncountersNewRoute: typeof EncountersNewRoute
+  MedicalRecordsIdRoute: typeof MedicalRecordsIdRouteWithChildren
+  MedicalRecordsNewRoute: typeof MedicalRecordsNewRoute
   OrdersManageOrdersRoute: typeof OrdersManageOrdersRoute
   PatientsIdRoute: typeof PatientsIdRouteWithChildren
   PatientsNewRoute: typeof PatientsNewRoute
+  PrescriptionsIdRoute: typeof PrescriptionsIdRouteWithChildren
+  PrescriptionsManageRoute: typeof PrescriptionsManageRoute
+  PrescriptionsNewRoute: typeof PrescriptionsNewRoute
   ProductsIdRoute: typeof ProductsIdRoute
   ProductsCreateProductRoute: typeof ProductsCreateProductRoute
   ProductsManageProductsRoute: typeof ProductsManageProductsRoute
@@ -398,8 +523,10 @@ export interface RootRouteChildren {
   ServicesManageRoute: typeof ServicesManageRoute
   AppointmentsIndexRoute: typeof AppointmentsIndexRoute
   EncountersIndexRoute: typeof EncountersIndexRoute
+  MedicalRecordsIndexRoute: typeof MedicalRecordsIndexRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
   PatientsIndexRoute: typeof PatientsIndexRoute
+  PrescriptionsIndexRoute: typeof PrescriptionsIndexRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
   ServicesIndexRoute: typeof ServicesIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -456,6 +583,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prescriptions/': {
+      id: '/prescriptions/'
+      path: '/prescriptions'
+      fullPath: '/prescriptions/'
+      preLoaderRoute: typeof PrescriptionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/patients/': {
       id: '/patients/'
       path: '/patients'
@@ -468,6 +602,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders/'
       preLoaderRoute: typeof OrdersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/medical-records/': {
+      id: '/medical-records/'
+      path: '/medical-records'
+      fullPath: '/medical-records/'
+      preLoaderRoute: typeof MedicalRecordsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/encounters/': {
@@ -519,6 +660,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prescriptions/new': {
+      id: '/prescriptions/new'
+      path: '/prescriptions/new'
+      fullPath: '/prescriptions/new'
+      preLoaderRoute: typeof PrescriptionsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prescriptions/manage': {
+      id: '/prescriptions/manage'
+      path: '/prescriptions/manage'
+      fullPath: '/prescriptions/manage'
+      preLoaderRoute: typeof PrescriptionsManageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prescriptions/$id': {
+      id: '/prescriptions/$id'
+      path: '/prescriptions/$id'
+      fullPath: '/prescriptions/$id'
+      preLoaderRoute: typeof PrescriptionsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/patients/new': {
       id: '/patients/new'
       path: '/patients/new'
@@ -538,6 +700,20 @@ declare module '@tanstack/react-router' {
       path: '/orders/manage-orders'
       fullPath: '/orders/manage-orders'
       preLoaderRoute: typeof OrdersManageOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/medical-records/new': {
+      id: '/medical-records/new'
+      path: '/medical-records/new'
+      fullPath: '/medical-records/new'
+      preLoaderRoute: typeof MedicalRecordsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/medical-records/$id': {
+      id: '/medical-records/$id'
+      path: '/medical-records/$id'
+      fullPath: '/medical-records/$id'
+      preLoaderRoute: typeof MedicalRecordsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/encounters/new': {
@@ -589,12 +765,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppointmentsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prescriptions/$id/edit': {
+      id: '/prescriptions/$id/edit'
+      path: '/edit'
+      fullPath: '/prescriptions/$id/edit'
+      preLoaderRoute: typeof PrescriptionsIdEditRouteImport
+      parentRoute: typeof PrescriptionsIdRoute
+    }
     '/patients/$id/edit': {
       id: '/patients/$id/edit'
       path: '/edit'
       fullPath: '/patients/$id/edit'
       preLoaderRoute: typeof PatientsIdEditRouteImport
       parentRoute: typeof PatientsIdRoute
+    }
+    '/medical-records/$id/edit': {
+      id: '/medical-records/$id/edit'
+      path: '/edit'
+      fullPath: '/medical-records/$id/edit'
+      preLoaderRoute: typeof MedicalRecordsIdEditRouteImport
+      parentRoute: typeof MedicalRecordsIdRoute
+    }
+    '/encounters/$id/edit': {
+      id: '/encounters/$id/edit'
+      path: '/edit'
+      fullPath: '/encounters/$id/edit'
+      preLoaderRoute: typeof EncountersIdEditRouteImport
+      parentRoute: typeof EncountersIdRoute
     }
     '/appointments/$id/cancel': {
       id: '/appointments/$id/cancel'
@@ -625,6 +822,29 @@ const AppointmentsIdRouteWithChildren = AppointmentsIdRoute._addFileChildren(
   AppointmentsIdRouteChildren,
 )
 
+interface EncountersIdRouteChildren {
+  EncountersIdEditRoute: typeof EncountersIdEditRoute
+}
+
+const EncountersIdRouteChildren: EncountersIdRouteChildren = {
+  EncountersIdEditRoute: EncountersIdEditRoute,
+}
+
+const EncountersIdRouteWithChildren = EncountersIdRoute._addFileChildren(
+  EncountersIdRouteChildren,
+)
+
+interface MedicalRecordsIdRouteChildren {
+  MedicalRecordsIdEditRoute: typeof MedicalRecordsIdEditRoute
+}
+
+const MedicalRecordsIdRouteChildren: MedicalRecordsIdRouteChildren = {
+  MedicalRecordsIdEditRoute: MedicalRecordsIdEditRoute,
+}
+
+const MedicalRecordsIdRouteWithChildren =
+  MedicalRecordsIdRoute._addFileChildren(MedicalRecordsIdRouteChildren)
+
 interface PatientsIdRouteChildren {
   PatientsIdEditRoute: typeof PatientsIdEditRoute
 }
@@ -635,6 +855,18 @@ const PatientsIdRouteChildren: PatientsIdRouteChildren = {
 
 const PatientsIdRouteWithChildren = PatientsIdRoute._addFileChildren(
   PatientsIdRouteChildren,
+)
+
+interface PrescriptionsIdRouteChildren {
+  PrescriptionsIdEditRoute: typeof PrescriptionsIdEditRoute
+}
+
+const PrescriptionsIdRouteChildren: PrescriptionsIdRouteChildren = {
+  PrescriptionsIdEditRoute: PrescriptionsIdEditRoute,
+}
+
+const PrescriptionsIdRouteWithChildren = PrescriptionsIdRoute._addFileChildren(
+  PrescriptionsIdRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
@@ -648,11 +880,16 @@ const rootRouteChildren: RootRouteChildren = {
   AppointmentsManageRoute: AppointmentsManageRoute,
   CheckoutCancelRoute: CheckoutCancelRoute,
   CheckoutSuccessRoute: CheckoutSuccessRoute,
-  EncountersIdRoute: EncountersIdRoute,
+  EncountersIdRoute: EncountersIdRouteWithChildren,
   EncountersNewRoute: EncountersNewRoute,
+  MedicalRecordsIdRoute: MedicalRecordsIdRouteWithChildren,
+  MedicalRecordsNewRoute: MedicalRecordsNewRoute,
   OrdersManageOrdersRoute: OrdersManageOrdersRoute,
   PatientsIdRoute: PatientsIdRouteWithChildren,
   PatientsNewRoute: PatientsNewRoute,
+  PrescriptionsIdRoute: PrescriptionsIdRouteWithChildren,
+  PrescriptionsManageRoute: PrescriptionsManageRoute,
+  PrescriptionsNewRoute: PrescriptionsNewRoute,
   ProductsIdRoute: ProductsIdRoute,
   ProductsCreateProductRoute: ProductsCreateProductRoute,
   ProductsManageProductsRoute: ProductsManageProductsRoute,
@@ -660,8 +897,10 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesManageRoute: ServicesManageRoute,
   AppointmentsIndexRoute: AppointmentsIndexRoute,
   EncountersIndexRoute: EncountersIndexRoute,
+  MedicalRecordsIndexRoute: MedicalRecordsIndexRoute,
   OrdersIndexRoute: OrdersIndexRoute,
   PatientsIndexRoute: PatientsIndexRoute,
+  PrescriptionsIndexRoute: PrescriptionsIndexRoute,
   ProductsIndexRoute: ProductsIndexRoute,
   ServicesIndexRoute: ServicesIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
