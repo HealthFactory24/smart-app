@@ -9,10 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsOfServiceRouteImport } from './routes/terms-of-service'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ServicesIndexRouteImport } from './routes/services/index'
 import { Route as ProductsIndexRouteImport } from './routes/products/index'
@@ -20,6 +24,7 @@ import { Route as PrescriptionsIndexRouteImport } from './routes/prescriptions/i
 import { Route as PatientsIndexRouteImport } from './routes/patients/index'
 import { Route as OrdersIndexRouteImport } from './routes/orders/index'
 import { Route as MedicalRecordsIndexRouteImport } from './routes/medical-records/index'
+import { Route as GrowthIndexRouteImport } from './routes/growth/index'
 import { Route as EncountersIndexRouteImport } from './routes/encounters/index'
 import { Route as AppointmentsIndexRouteImport } from './routes/appointments/index'
 import { Route as ServicesManageRouteImport } from './routes/services/manage'
@@ -35,6 +40,7 @@ import { Route as PatientsIdRouteImport } from './routes/patients/$id'
 import { Route as OrdersManageOrdersRouteImport } from './routes/orders/manage-orders'
 import { Route as MedicalRecordsNewRouteImport } from './routes/medical-records/new'
 import { Route as MedicalRecordsIdRouteImport } from './routes/medical-records/$id'
+import { Route as GrowthPatientIdRouteImport } from './routes/growth/$patientId'
 import { Route as EncountersNewRouteImport } from './routes/encounters/new'
 import { Route as EncountersIdRouteImport } from './routes/encounters/$id'
 import { Route as CheckoutSuccessRouteImport } from './routes/checkout/success'
@@ -49,6 +55,11 @@ import { Route as EncountersIdEditRouteImport } from './routes/encounters/$id.ed
 import { Route as AppointmentsIdCancelRouteImport } from './routes/appointments/$id.cancel'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const TermsOfServiceRoute = TermsOfServiceRouteImport.update({
+  id: '/terms-of-service',
+  path: '/terms-of-service',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -64,9 +75,24 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -102,6 +128,11 @@ const OrdersIndexRoute = OrdersIndexRouteImport.update({
 const MedicalRecordsIndexRoute = MedicalRecordsIndexRouteImport.update({
   id: '/medical-records/',
   path: '/medical-records/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GrowthIndexRoute = GrowthIndexRouteImport.update({
+  id: '/growth/',
+  path: '/growth/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EncountersIndexRoute = EncountersIndexRouteImport.update({
@@ -179,6 +210,11 @@ const MedicalRecordsIdRoute = MedicalRecordsIdRouteImport.update({
   path: '/medical-records/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GrowthPatientIdRoute = GrowthPatientIdRouteImport.update({
+  id: '/growth/$patientId',
+  path: '/growth/$patientId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EncountersNewRoute = EncountersNewRouteImport.update({
   id: '/encounters/new',
   path: '/encounters/new',
@@ -247,10 +283,14 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/cart': typeof CartRoute
+  '/dashboard': typeof DashboardRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/profile': typeof ProfileRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/appointments/$id': typeof AppointmentsIdRouteWithChildren
   '/appointments/book': typeof AppointmentsBookRoute
   '/appointments/manage': typeof AppointmentsManageRoute
@@ -258,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/checkout/success': typeof CheckoutSuccessRoute
   '/encounters/$id': typeof EncountersIdRouteWithChildren
   '/encounters/new': typeof EncountersNewRoute
+  '/growth/$patientId': typeof GrowthPatientIdRoute
   '/medical-records/$id': typeof MedicalRecordsIdRouteWithChildren
   '/medical-records/new': typeof MedicalRecordsNewRoute
   '/orders/manage-orders': typeof OrdersManageOrdersRoute
@@ -273,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/services/manage': typeof ServicesManageRoute
   '/appointments/': typeof AppointmentsIndexRoute
   '/encounters/': typeof EncountersIndexRoute
+  '/growth/': typeof GrowthIndexRoute
   '/medical-records/': typeof MedicalRecordsIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/patients/': typeof PatientsIndexRoute
@@ -288,10 +330,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/cart': typeof CartRoute
+  '/dashboard': typeof DashboardRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/profile': typeof ProfileRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/appointments/$id': typeof AppointmentsIdRouteWithChildren
   '/appointments/book': typeof AppointmentsBookRoute
   '/appointments/manage': typeof AppointmentsManageRoute
@@ -299,6 +345,7 @@ export interface FileRoutesByTo {
   '/checkout/success': typeof CheckoutSuccessRoute
   '/encounters/$id': typeof EncountersIdRouteWithChildren
   '/encounters/new': typeof EncountersNewRoute
+  '/growth/$patientId': typeof GrowthPatientIdRoute
   '/medical-records/$id': typeof MedicalRecordsIdRouteWithChildren
   '/medical-records/new': typeof MedicalRecordsNewRoute
   '/orders/manage-orders': typeof OrdersManageOrdersRoute
@@ -314,6 +361,7 @@ export interface FileRoutesByTo {
   '/services/manage': typeof ServicesManageRoute
   '/appointments': typeof AppointmentsIndexRoute
   '/encounters': typeof EncountersIndexRoute
+  '/growth': typeof GrowthIndexRoute
   '/medical-records': typeof MedicalRecordsIndexRoute
   '/orders': typeof OrdersIndexRoute
   '/patients': typeof PatientsIndexRoute
@@ -330,10 +378,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/cart': typeof CartRoute
+  '/dashboard': typeof DashboardRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/profile': typeof ProfileRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/terms-of-service': typeof TermsOfServiceRoute
   '/appointments/$id': typeof AppointmentsIdRouteWithChildren
   '/appointments/book': typeof AppointmentsBookRoute
   '/appointments/manage': typeof AppointmentsManageRoute
@@ -341,6 +393,7 @@ export interface FileRoutesById {
   '/checkout/success': typeof CheckoutSuccessRoute
   '/encounters/$id': typeof EncountersIdRouteWithChildren
   '/encounters/new': typeof EncountersNewRoute
+  '/growth/$patientId': typeof GrowthPatientIdRoute
   '/medical-records/$id': typeof MedicalRecordsIdRouteWithChildren
   '/medical-records/new': typeof MedicalRecordsNewRoute
   '/orders/manage-orders': typeof OrdersManageOrdersRoute
@@ -356,6 +409,7 @@ export interface FileRoutesById {
   '/services/manage': typeof ServicesManageRoute
   '/appointments/': typeof AppointmentsIndexRoute
   '/encounters/': typeof EncountersIndexRoute
+  '/growth/': typeof GrowthIndexRoute
   '/medical-records/': typeof MedicalRecordsIndexRoute
   '/orders/': typeof OrdersIndexRoute
   '/patients/': typeof PatientsIndexRoute
@@ -373,10 +427,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/cart'
+    | '/dashboard'
+    | '/privacy-policy'
     | '/profile'
     | '/sign-in'
     | '/sign-up'
+    | '/terms-of-service'
     | '/appointments/$id'
     | '/appointments/book'
     | '/appointments/manage'
@@ -384,6 +442,7 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/encounters/$id'
     | '/encounters/new'
+    | '/growth/$patientId'
     | '/medical-records/$id'
     | '/medical-records/new'
     | '/orders/manage-orders'
@@ -399,6 +458,7 @@ export interface FileRouteTypes {
     | '/services/manage'
     | '/appointments/'
     | '/encounters/'
+    | '/growth/'
     | '/medical-records/'
     | '/orders/'
     | '/patients/'
@@ -414,10 +474,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/cart'
+    | '/dashboard'
+    | '/privacy-policy'
     | '/profile'
     | '/sign-in'
     | '/sign-up'
+    | '/terms-of-service'
     | '/appointments/$id'
     | '/appointments/book'
     | '/appointments/manage'
@@ -425,6 +489,7 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/encounters/$id'
     | '/encounters/new'
+    | '/growth/$patientId'
     | '/medical-records/$id'
     | '/medical-records/new'
     | '/orders/manage-orders'
@@ -440,6 +505,7 @@ export interface FileRouteTypes {
     | '/services/manage'
     | '/appointments'
     | '/encounters'
+    | '/growth'
     | '/medical-records'
     | '/orders'
     | '/patients'
@@ -455,10 +521,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/cart'
+    | '/dashboard'
+    | '/privacy-policy'
     | '/profile'
     | '/sign-in'
     | '/sign-up'
+    | '/terms-of-service'
     | '/appointments/$id'
     | '/appointments/book'
     | '/appointments/manage'
@@ -466,6 +536,7 @@ export interface FileRouteTypes {
     | '/checkout/success'
     | '/encounters/$id'
     | '/encounters/new'
+    | '/growth/$patientId'
     | '/medical-records/$id'
     | '/medical-records/new'
     | '/orders/manage-orders'
@@ -481,6 +552,7 @@ export interface FileRouteTypes {
     | '/services/manage'
     | '/appointments/'
     | '/encounters/'
+    | '/growth/'
     | '/medical-records/'
     | '/orders/'
     | '/patients/'
@@ -497,10 +569,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   CartRoute: typeof CartRoute
+  DashboardRoute: typeof DashboardRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ProfileRoute: typeof ProfileRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
+  TermsOfServiceRoute: typeof TermsOfServiceRoute
   AppointmentsIdRoute: typeof AppointmentsIdRouteWithChildren
   AppointmentsBookRoute: typeof AppointmentsBookRoute
   AppointmentsManageRoute: typeof AppointmentsManageRoute
@@ -508,6 +584,7 @@ export interface RootRouteChildren {
   CheckoutSuccessRoute: typeof CheckoutSuccessRoute
   EncountersIdRoute: typeof EncountersIdRouteWithChildren
   EncountersNewRoute: typeof EncountersNewRoute
+  GrowthPatientIdRoute: typeof GrowthPatientIdRoute
   MedicalRecordsIdRoute: typeof MedicalRecordsIdRouteWithChildren
   MedicalRecordsNewRoute: typeof MedicalRecordsNewRoute
   OrdersManageOrdersRoute: typeof OrdersManageOrdersRoute
@@ -523,6 +600,7 @@ export interface RootRouteChildren {
   ServicesManageRoute: typeof ServicesManageRoute
   AppointmentsIndexRoute: typeof AppointmentsIndexRoute
   EncountersIndexRoute: typeof EncountersIndexRoute
+  GrowthIndexRoute: typeof GrowthIndexRoute
   MedicalRecordsIndexRoute: typeof MedicalRecordsIndexRoute
   OrdersIndexRoute: typeof OrdersIndexRoute
   PatientsIndexRoute: typeof PatientsIndexRoute
@@ -534,6 +612,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms-of-service': {
+      id: '/terms-of-service'
+      path: '/terms-of-service'
+      fullPath: '/terms-of-service'
+      preLoaderRoute: typeof TermsOfServiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-up': {
       id: '/sign-up'
       path: '/sign-up'
@@ -555,11 +640,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cart': {
       id: '/cart'
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -609,6 +715,13 @@ declare module '@tanstack/react-router' {
       path: '/medical-records'
       fullPath: '/medical-records/'
       preLoaderRoute: typeof MedicalRecordsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/growth/': {
+      id: '/growth/'
+      path: '/growth'
+      fullPath: '/growth/'
+      preLoaderRoute: typeof GrowthIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/encounters/': {
@@ -714,6 +827,13 @@ declare module '@tanstack/react-router' {
       path: '/medical-records/$id'
       fullPath: '/medical-records/$id'
       preLoaderRoute: typeof MedicalRecordsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/growth/$patientId': {
+      id: '/growth/$patientId'
+      path: '/growth/$patientId'
+      fullPath: '/growth/$patientId'
+      preLoaderRoute: typeof GrowthPatientIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/encounters/new': {
@@ -871,10 +991,14 @@ const PrescriptionsIdRouteWithChildren = PrescriptionsIdRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   CartRoute: CartRoute,
+  DashboardRoute: DashboardRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ProfileRoute: ProfileRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
+  TermsOfServiceRoute: TermsOfServiceRoute,
   AppointmentsIdRoute: AppointmentsIdRouteWithChildren,
   AppointmentsBookRoute: AppointmentsBookRoute,
   AppointmentsManageRoute: AppointmentsManageRoute,
@@ -882,6 +1006,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutSuccessRoute: CheckoutSuccessRoute,
   EncountersIdRoute: EncountersIdRouteWithChildren,
   EncountersNewRoute: EncountersNewRoute,
+  GrowthPatientIdRoute: GrowthPatientIdRoute,
   MedicalRecordsIdRoute: MedicalRecordsIdRouteWithChildren,
   MedicalRecordsNewRoute: MedicalRecordsNewRoute,
   OrdersManageOrdersRoute: OrdersManageOrdersRoute,
@@ -897,6 +1022,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesManageRoute: ServicesManageRoute,
   AppointmentsIndexRoute: AppointmentsIndexRoute,
   EncountersIndexRoute: EncountersIndexRoute,
+  GrowthIndexRoute: GrowthIndexRoute,
   MedicalRecordsIndexRoute: MedicalRecordsIndexRoute,
   OrdersIndexRoute: OrdersIndexRoute,
   PatientsIndexRoute: PatientsIndexRoute,

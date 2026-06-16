@@ -1,4 +1,5 @@
 // src/routes/medical-records/index.tsx
+
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import {
 	Activity,
@@ -8,11 +9,9 @@ import {
 	FileText,
 	Filter,
 	MoreHorizontal,
-	Pill,
 	Plus,
 	Search,
 	Stethoscope,
-	TestTube,
 	Trash2,
 	User
 } from "lucide-react";
@@ -29,16 +28,13 @@ import {
 	DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getAllMedicalRecords } from "@/data/medical-records";
 import { formatDate } from "@/utils/formDate";
-import { calculateAge } from "@/utils/growth";
 
-type MedicalRecordWithRelations = Awaited<ReturnType<typeof getAllMedicalRecords>>[number];
+// type MedicalRecordWithRelations = Awaited<ReturnType<typeof getAllMedicalRecords>>[number];
 
 export const Route = createFileRoute("/medical-records/")({
 	beforeLoad: async ({ context }) => {
@@ -63,7 +59,7 @@ function MedicalRecordsListPage() {
 	const records = Route.useLoaderData();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [statusFilter, setStatusFilter] = useState("ALL");
-	const [typeFilter, setTypeFilter] = useState("ALL");
+	// const [typeFilter, setTypeFilter] = useState("ALL");
 	const [activeTab, setActiveTab] = useState("all");
 
 	const getStatusCount = (status: string) => {
@@ -251,7 +247,9 @@ function MedicalRecordsListPage() {
 														</span>
 													</TableCell>
 													<TableCell>
-														<Badge className={statusColors[record.status]}>
+														<Badge
+															className={record.status ? statusColors[record.status] : ""}
+														>
 															{record.status}
 														</Badge>
 													</TableCell>

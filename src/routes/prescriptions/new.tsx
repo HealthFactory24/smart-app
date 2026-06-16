@@ -1,18 +1,20 @@
 // src/routes/prescriptions/new.tsx
 
-import type { DeepKeys, FieldApi, FormApi } from "@tanstack/react-form";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAppForm } from "@/components/ui/tanstack-form";
 import { Textarea } from "@/components/ui/textarea";
 import { getAllDoctors } from "@/data/doctors";
 import { getAllPatients } from "@/data/patients";
 import { createPrescription, getAllDrugs } from "@/data/prescriptions";
+import { getFormData, serverValidate } from "@/lib/form-utils";
+import { mergeForm, useForm, useTransform } from "@tanstack/react-form-start";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useStore } from "@tanstack/react-store";
+import { toast } from "sonner";
+import type { Doctor, Drug, Patient } from "../../db/zod";
 
 type MedicationValue = {
 	drugId: string;
@@ -30,11 +32,11 @@ type MedicationValue = {
 	duration: string;
 	instructions: string;
 	refillsRemaining: number;
-	drugRoute?: "ORAL" | "INTRAVENOUS" | "INTRAMUSCULAR" | "SUBCUTANEOUS" | "TOPICAL" | "INHALATION" | "RECTAL";
 };
 
 type PrescriptionFormValues = {
 	patientId: string;
+	clinicId: string;
 	doctorId: string;
 	diagnosis: string;
 	notes: string;
@@ -43,10 +45,6 @@ type PrescriptionFormValues = {
 	medications: MedicationValue[];
 };
 
-type Doctor = { id: string; name: string; specialty: string };
-type Patient = { id: string; firstName: string; lastName: string; mrn: string };
-type Drug = { id: string; name: string };
-
 export const Route = createFileRoute("/prescriptions/new")({
 	beforeLoad: async ({ context }) => {
 		const session = context.session;
@@ -54,12 +52,18 @@ export const Route = createFileRoute("/prescriptions/new")({
 		if (session.user.role === "patient") throw redirect({ to: "/" });
 		return { user: session.user };
 	},
-	loader: async (): Promise<{ doctors: Doctor[]; patients: Patient[]; drugs: Drug[] }> => {
-		const [doctors, patients, drugs] = await Promise.all([getAllDoctors(), getAllPatients(), getAllDrugs()]);
+	loader: async () => {
+		const [doctors, patients, drugs, formState] = await Promise.all([
+			getAllDoctors(),
+			getAllPatients(),
+			getAllDrugs(),
+			getFormData()
+		]);
 		return {
 			doctors: doctors as Doctor[],
 			patients: patients as Patient[],
-			drugs: drugs as Drug[]
+			drugs: drugs as Drug[],
+			formState
 		};
 	},
 	component: NewPrescriptionPage
@@ -78,60 +82,98 @@ const frequencyOptions = [
 
 const dosageUnits = ["mg", "mcg", "g", "mL", "IU", "units"];
 
+const formOpts = {
+	defaultValues: {
+		patientId: "",
+		clinicId: "",
+		doctorId: "",
+		diagnosis: "",
+		notes: "",
+		instructions: "",
+		validUntil: "",
+		medications: [
+			{
+				drugId: "",
+				dosageValue: 0,
+				dosageUnit: "mg",
+				frequency: "TWICE_DAILY" as const,
+				duration: "",
+				instructions: "",
+				refillsRemaining: 0
+			}
+		]
+	} as PrescriptionFormValues,
+	validators: {
+		onChange: ({ value }) => {
+			if (!value.patientId) return { patientId: "Patient is required" };
+			if (!value.doctorId) return { doctorId: "Doctor is required" };
+			if (value.medications.length === 0) return { medications: "At least one medication is required" };
+			for (let i = 0; i < value.medications.length; i++) {
+				const med = value.medications[i];
+				if (!med.drugId) return { [`medications.${i}.drugId`]: "Medication is required" };
+				if (!med.dosageValue || med.dosageValue <= 0)
+					return { [`medications.${i}.dosageValue`]: "Valid dosage is required" };
+			}
+			return undefined;
+		}
+	}
+};
+
 function NewPrescriptionPage() {
-	const { doctors, patients, drugs } = Route.useLoaderData();
+	const { doctors, patients, drugs, formState } = Route.useLoaderData();
 	const navigate = useNavigate();
 
-	const form = useAppForm({
-		defaultValues: {
-			patientId: "",
-			doctorId: "",
-			diagnosis: "",
-			notes: "",
-			instructions: "",
-			validUntil: "",
-			medications: [
-				{
-					drugId: "",
-					dosageValue: 0,
-					dosageUnit: "mg",
-					frequency: "TWICE_DAILY" as const,
-					duration: "",
-					instructions: "",
-					refillsRemaining: 0
-				}
-			]
-		} as PrescriptionFormValues,
-		onSubmit: async ({ value }) => {
-			try {
-				// Transform medications array to match the expected format in createPrescription
-				const medications = value.medications.map(med => ({
-					name: drugs.find(d => d.id === med.drugId)?.name || "",
-					dosage: `${med.dosageValue} ${med.dosageUnit}`,
-					frequency: med.frequency.replace(/_/g, " "),
-					duration: med.duration,
-					instructions: med.instructions
-				}));
-
-				await createPrescription({
-					data: {
-						patientId: value.patientId,
-						doctorId: value.doctorId,
-						medications: medications,
-						diagnosis: value.diagnosis,
-						notes: value.notes,
-						instructions: value.instructions,
-						validUntil: value.validUntil ? new Date(value.validUntil) : undefined
-					}
-				});
-				toast.success("Prescription created successfully");
-				navigate({ to: "/prescriptions" });
-			} catch (error) {
-				console.error(error);
-				toast.error("Failed to create prescription");
-			}
-		}
+	const form = useForm({
+		...formOpts,
+		transform: useTransform(baseForm => mergeForm(baseForm, formState), [formState])
 	});
+
+	const formErrors = useStore(form.store, state => state.errors);
+
+	const handleSubmit = async () => {
+		const values = form.store.state.values as PrescriptionFormValues;
+
+		try {
+			const medications = values.medications.map(med => ({
+				drugId: med.drugId,
+				dosageValue: med.dosageValue,
+				dosageUnit: med.dosageUnit,
+				frequency: med.frequency,
+				duration: med.duration,
+				instructions: med.instructions || undefined,
+				refillsRemaining: med.refillsRemaining
+			}));
+
+			await createPrescription({
+				data: {
+					patientId: values.patientId,
+					doctorId: values.doctorId,
+					diagnosis: values.diagnosis,
+					notes: values.notes,
+					instructions: values.instructions ?? "",
+					validUntil: values.validUntil ? new Date(values.validUntil) : null,
+					status: "active" as const,
+					clinicId: values.clinicId || null,
+					medicationName: values.medications.map(med => med.drugId).join(", "),
+					id: "",
+					medicalRecordId: "",
+					encounterId: "",
+					issuedDate: new Date(),
+					endDate: null,
+					renewedFromId: null,
+					cancelledAt: null,
+					cancellationReason: null,
+					createdAt: new Date(),
+					updatedAt: new Date()
+				}
+			});
+			toast.success("Prescription created successfully");
+			navigate({ to: "/prescriptions" });
+		} catch (error) {
+			console.error(error);
+			toast.error("Failed to create prescription");
+		}
+	};
 
 	return (
 		<div className='mx-auto max-w-4xl px-4 py-8'>
@@ -142,14 +184,28 @@ function NewPrescriptionPage() {
 				</CardHeader>
 				<CardContent>
 					<form
-						onSubmit={e => {
+						action={serverValidate.url}
+						encType='multipart/form-data'
+						method='post'
+						onSubmit={async e => {
 							e.preventDefault();
 							e.stopPropagation();
-							form.handleSubmit();
+							const isValid = await form.validate();
+							if (isValid) {
+								await handleSubmit();
+							}
 						}}
 					>
+						{formErrors.map((error, i) => (
+							<p
+								className='text-destructive text-sm'
+								key={i}
+							>
+								{String(error)}
+							</p>
+						))}
+
 						<div className='space-y-6'>
-							{/* Basic Information */}
 							<div className='grid gap-4 sm:grid-cols-2'>
 								<form.Field name='patientId'>
 									{field => (
@@ -176,6 +232,14 @@ function NewPrescriptionPage() {
 													))}
 												</SelectContent>
 											</Select>
+											{field.state.meta.errors.map((error, i) => (
+												<p
+													className='text-destructive text-sm'
+													key={i}
+												>
+													{String(error)}
+												</p>
+											))}
 										</div>
 									)}
 								</form.Field>
@@ -205,6 +269,14 @@ function NewPrescriptionPage() {
 													))}
 												</SelectContent>
 											</Select>
+											{field.state.meta.errors.map((error, i) => (
+												<p
+													className='text-destructive text-sm'
+													key={i}
+												>
+													{String(error)}
+												</p>
+											))}
 										</div>
 									)}
 								</form.Field>
@@ -224,7 +296,6 @@ function NewPrescriptionPage() {
 								</form.Field>
 							</div>
 
-							{/* Medications Section */}
 							<div className='space-y-4'>
 								<div className='flex items-center justify-between'>
 									<Label className='font-semibold text-base'>Medications *</Label>
@@ -255,7 +326,7 @@ function NewPrescriptionPage() {
 								<form.Field name='medications'>
 									{field => (
 										<div className='space-y-4'>
-											{field.state.value.map((_med, index) => (
+											{field.state.value.map((_, index) => (
 												<MedicationFormFields
 													drugs={drugs}
 													form={form}
@@ -271,12 +342,19 @@ function NewPrescriptionPage() {
 													showRemove={field.state.value.length > 1}
 												/>
 											))}
+											{field.state.meta.errors.map((error, i) => (
+												<p
+													className='text-destructive text-sm'
+													key={i}
+												>
+													{String(error)}
+												</p>
+											))}
 										</div>
 									)}
 								</form.Field>
 							</div>
 
-							{/* Clinical Information */}
 							<form.Field name='diagnosis'>
 								{field => (
 									<div className='space-y-2'>
@@ -357,13 +435,14 @@ function MedicationFormFields({
 	showRemove = true
 }: {
 	drugs: Drug[];
-	form: FormApi<PrescriptionFormValues, any>;
+	form: ReturnType<typeof useForm<PrescriptionFormValues>>;
 	index: number;
 	onRemove: () => void;
-	showRemove?: boolean;
+	showRemove: boolean;
 }) {
-	const fieldName = (subPath: string) =>
-		`medications[${index}].${subPath}` as unknown as DeepKeys<PrescriptionFormValues>;
+	const getFieldName = (subPath: string): `medications.${number}.${string}` => {
+		return `medications.${index}.${subPath}`;
+	};
 
 	return (
 		<div className='rounded-lg border p-4 dark:border-slate-700'>
@@ -382,8 +461,8 @@ function MedicationFormFields({
 				)}
 			</div>
 			<div className='grid gap-3 sm:grid-cols-2'>
-				<form.Field name={fieldName("drugId")}>
-					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+				<form.Field name={getFieldName("drugId")}>
+					{field => (
 						<div className='space-y-1'>
 							<Label htmlFor={field.name}>Medication *</Label>
 							<Select
@@ -407,13 +486,21 @@ function MedicationFormFields({
 									))}
 								</SelectContent>
 							</Select>
+							{field.state.meta.errors.map((error, i) => (
+								<p
+									className='text-destructive text-sm'
+									key={i}
+								>
+									{String(error)}
+								</p>
+							))}
 						</div>
 					)}
 				</form.Field>
 
 				<div className='grid grid-cols-2 gap-2'>
-					<form.Field name={fieldName("dosageValue")}>
-						{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+					<form.Field name={getFieldName("dosageValue")}>
+						{field => (
 							<div className='space-y-1'>
 								<Label htmlFor={field.name}>Dosage *</Label>
 								<Input
@@ -423,12 +510,20 @@ function MedicationFormFields({
 									type='number'
 									value={field.state.value || ""}
 								/>
+								{field.state.meta.errors.map((error, i) => (
+									<p
+										className='text-destructive text-sm'
+										key={i}
+									>
+										{String(error)}
+									</p>
+								))}
 							</div>
 						)}
 					</form.Field>
 
-					<form.Field name={fieldName("dosageUnit")}>
-						{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+					<form.Field name={getFieldName("dosageUnit")}>
+						{field => (
 							<div className='space-y-1'>
 								<Label htmlFor={field.name}>Unit *</Label>
 								<Select
@@ -457,8 +552,8 @@ function MedicationFormFields({
 					</form.Field>
 				</div>
 
-				<form.Field name={fieldName("frequency")}>
-					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+				<form.Field name={getFieldName("frequency")}>
+					{field => (
 						<div className='space-y-1'>
 							<Label htmlFor={field.name}>Frequency *</Label>
 							<Select
@@ -486,8 +581,8 @@ function MedicationFormFields({
 					)}
 				</form.Field>
 
-				<form.Field name={fieldName("duration")}>
-					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+				<form.Field name={getFieldName("duration")}>
+					{field => (
 						<div className='space-y-1'>
 							<Label htmlFor={field.name}>Duration</Label>
 							<Input
@@ -500,8 +595,8 @@ function MedicationFormFields({
 					)}
 				</form.Field>
 
-				<form.Field name={fieldName("refillsRemaining")}>
-					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+				<form.Field name={getFieldName("refillsRemaining")}>
+					{field => (
 						<div className='space-y-1'>
 							<Label htmlFor={field.name}>Refills Remaining</Label>
 							<Input
@@ -515,8 +610,8 @@ function MedicationFormFields({
 					)}
 				</form.Field>
 
-				<form.Field name={fieldName("instructions")}>
-					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+				<form.Field name={getFieldName("instructions")}>
+					{field => (
 						<div className='space-y-1 sm:col-span-2'>
 							<Label htmlFor={field.name}>Specific Instructions</Label>
 							<Textarea

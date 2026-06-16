@@ -35,7 +35,7 @@ export async function ensureBucket() {
 }
 
 // Generate presigned URL for upload
-export async function getPresignedUploadUrl(objectName: string, contentType: string): Promise<string> {
+export async function getPresignedUploadUrl(objectName: string, _contentType: string): Promise<string> {
 	await ensureBucket();
 	return minioClient.presignedPutObject(BUCKET_NAME, objectName, PRESIGNED_URL_EXPIRY);
 }

@@ -1,4 +1,10 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <ok> */
+
+import { type FieldApi, useForm } from "@tanstack/react-form";
+import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
+import imageCompression from "browser-image-compression";
+import { useState } from "react";
+import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,11 +13,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { createProduct, productSchema, uploadProductImage } from "@/data/products";
 import type { BadgeValue, InventoryValue } from "@/db/schema";
-import { type FieldApi, useForm } from "@tanstack/react-form";
-import { createFileRoute, redirect, useNavigate, useRouter } from "@tanstack/react-router";
-import imageCompression from "browser-image-compression";
-import { useState } from "react";
-import type { z } from "zod";
 
 export const Route = createFileRoute("/products/create-product")({
 	beforeLoad: async ({ context }) => {

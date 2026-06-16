@@ -20,7 +20,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getEncounterById } from "@/data/diagnosis";
 import { formatDate } from "@/utils/formDate";
-import type { DbDrug, DbPrescribedItem } from "../../db/schema";
+import type { DbDrug, DbPrescribedItem, DbPrescription, DbVitalSign } from "../../db/schema";
 
 export const Route = createFileRoute("/encounters/$id")({
 	beforeLoad: async ({ context }) => {
@@ -231,7 +231,7 @@ function EncounterDetailPage() {
 						value='vitals'
 					>
 						{encounter.vitalSigns && encounter.vitalSigns.length > 0 ? (
-							encounter.vitalSigns.map((vitals: any, index: number) => (
+							encounter.vitalSigns.map((vitals: DbVitalSign, index: number) => (
 								<Card key={index}>
 									<CardHeader>
 										<CardTitle className='text-lg'>Vital Signs Recorded</CardTitle>
@@ -332,7 +332,7 @@ function EncounterDetailPage() {
 								<CardDescription>Height, weight, and BMI tracking</CardDescription>
 							</CardHeader>
 							<CardContent>
-								{encounter.vitalSigns && encounter.vitalSigns[0]?.weight ? (
+								{encounter.vitalSigns?.[0]?.weight ? (
 									<div className='grid gap-4 sm:grid-cols-3'>
 										<div className='text-center'>
 											<p className='text-slate-500 text-xs'>Weight</p>
@@ -371,57 +371,64 @@ function EncounterDetailPage() {
 						value='prescriptions'
 					>
 						{encounter.prescriptions && encounter.prescriptions.length > 0 ? (
-							encounter.prescriptions.map((prescription: any, index: number) => (
-								<Card key={index}>
-									<CardHeader>
-										<div className='flex flex-wrap items-start justify-between gap-2'>
-											<div>
-												<CardTitle className='text-lg'>
-													Prescription #{prescription.id.slice(0, 8)}
-												</CardTitle>
-												<CardDescription>
-													Issued: {formatDate(prescription.issuedDate)} • Status:{" "}
-													{prescription.status}
-												</CardDescription>
-											</div>
-											<Link
-												params={{ id: prescription.id }}
-												to='/prescriptions/$id'
-											>
-												<Button
-													size='sm'
-													variant='outline'
+							encounter.prescriptions.map(
+								(
+									prescription: DbPrescription & { prescribedItems?: DbPrescribedItem[] | null },
+									index: number
+								) => (
+									<Card key={index}>
+										<CardHeader>
+											<div className='flex flex-wrap items-start justify-between gap-2'>
+												<div>
+													<CardTitle className='text-lg'>
+														Prescription #{prescription.id.slice(0, 8)}
+													</CardTitle>
+													<CardDescription>
+														Issued: {formatDate(prescription.issuedDate)} • Status:{" "}
+														{prescription.status}
+													</CardDescription>
+												</div>
+												<Link
+													params={{ id: prescription.id }}
+													to='/prescriptions/$id'
 												>
-													View Details
-												</Button>
-											</Link>
-										</div>
-									</CardHeader>
-									<CardContent>
-										<p className='font-medium'>
-											Diagnosis: {prescription.diagnosis || "Not specified"}
-										</p>
-										{prescription.prescribedItems && prescription.prescribedItems.length > 0 && (
-											<div className='mt-3 space-y-2'>
-												<p className='font-medium text-sm'>Medications:</p>
-												<ul className='list-inside list-disc space-y-1 text-sm'>
-													{prescription.prescribedItems.map(
-														(
-															item: DbPrescribedItem & { drug?: DbDrug | null },
-															i: number
-														) => (
-															<li key={i}>
-																{item.drug?.name || item.drugId} - {item.dosageValue}{" "}
-																{item.dosageUnit} - {item.frequency}
-															</li>
-														)
-													)}
-												</ul>
+													<Button
+														size='sm'
+														variant='outline'
+													>
+														View Details
+													</Button>
+												</Link>
 											</div>
-										)}
-									</CardContent>
-								</Card>
-							))
+										</CardHeader>
+										<CardContent>
+											<p className='font-medium'>
+												Diagnosis: {prescription.diagnosis || "Not specified"}
+											</p>
+											{prescription.prescribedItems &&
+												prescription.prescribedItems.length > 0 && (
+													<div className='mt-3 space-y-2'>
+														<p className='font-medium text-sm'>Medications:</p>
+														<ul className='list-inside list-disc space-y-1 text-sm'>
+															{prescription.prescribedItems.map(
+																(
+																	item: DbPrescribedItem & { drug?: DbDrug | null },
+																	i: number
+																) => (
+																	<li key={i}>
+																		{item.drug?.name || item.drugId} -{" "}
+																		{item.dosageValue} {item.dosageUnit} -{" "}
+																		{item.frequency}
+																	</li>
+																)
+															)}
+														</ul>
+													</div>
+												)}
+										</CardContent>
+									</Card>
+								)
+							)
 						) : (
 							<Card>
 								<CardContent className='py-12 text-center'>

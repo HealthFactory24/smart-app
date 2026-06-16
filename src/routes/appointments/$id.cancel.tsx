@@ -60,6 +60,7 @@ function CancelAppointmentPage() {
 			toast.success("Appointment cancelled successfully");
 			navigate({ to: "/appointments" });
 		} catch (error) {
+      console.error("Error cancelling appointment:", error);
 			toast.error("Failed to cancel appointment");
 		} finally {
 			setIsSubmitting(false);

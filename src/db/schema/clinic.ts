@@ -262,6 +262,8 @@ export const doctor = pgTable(
 		availableFromWeekDay: weekdayEnum("available_from_week_day"),
 		availableToWeekDay: weekdayEnum("available_to_week_day"),
 		isActive: boolean("is_active"),
+		experience: integer("experience"),
+		bio: text("bio"),
 		status: statusEnum("status"),
 		availableFromTime: text("available_from_time"),
 		availableToTime: text("available_to_time"),

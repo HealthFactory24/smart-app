@@ -16,7 +16,8 @@ const ClinicCreateSchema = z.object({
 const ClinicUpdateSchema = ClinicCreateSchema.partial();
 
 // Get current user's clinic
-export const getCurrentClinic = createServerFn({ method: "GET" }).handler(async () => {
+export const
+getCurrentClinic = createServerFn({ method: "GET" }).handler(async () => {
 	const session = await getSession();
 	if (!session) throw new Error("Unauthorized");
 

@@ -24,7 +24,6 @@ import { getRecentEncounters } from "@/data/diagnosis";
 import { getClinicGrowthAlerts } from "@/data/growthRecord";
 import { getDueImmunizations } from "@/data/immunization";
 import { getRecentPatients } from "@/data/patients";
-import type { DbAppointment, DbDiagnosis, DbDoctor, DbImmunization, DbPatient } from "@/db/schema/types";
 import { formatDate } from "@/utils/formDate";
 
 export const Route = createFileRoute("/")({

@@ -1,9 +1,18 @@
 // src/routes/prescriptions/$id.edit.tsx
-import { useForm, useStore } from "@tanstack/react-form";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
-import { z } from "zod";
+
+import {
+	type DeepKeys,
+	type DeepKeys,
+	type FieldApi,
+	type FieldApi,
+	type FormApi,
+	type FormApi,
+	useForm,
+	useForm
+} from "@tanstack/react-form";
+import { createFileRoute, createFileRoute, redirect, redirect, useNavigate, useNavigate } from "@tanstack/react-router";
+import { useState, useState } from "react";
+import { toast, toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,32 +20,36 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { getAllDoctors } from "@/data/doctors";
-import { getAllDrugs } from "@/data/functions/pharmacy";
 import { getAllPatients } from "@/data/patients";
-import { getPrescriptionById, updatePrescription } from "@/data/prescriptions";
+import { getAllDrugs, getPrescriptionById, updatePrescription } from "@/data/prescriptions";
+import type { Doctor, Drug, Patient, PrescriptionWithItems } from "../../db/zod";
 
-const prescriptionSchema = z.object({
-	patientId: z.string().min(1, "Patient is required"),
-	doctorId: z.string().min(1, "Doctor is required"),
-	diagnosis: z.string().optional(),
-	notes: z.string().optional(),
-	instructions: z.string().optional(),
-	status: z.enum(["active", "completed", "cancelled", "expired", "on_hold"]).default("active"),
-	validUntil: z.string().optional(),
-	medications: z
-		.array(
-			z.object({
-				drugId: z.string().min(1, "Medication is required"),
-				dosageValue: z.number().min(0.1, "Dosage is required"),
-				dosageUnit: z.string().min(1, "Unit is required"),
-				frequency: z.string().min(1, "Frequency is required"),
-				duration: z.string().optional(),
-				instructions: z.string().optional(),
-				refillsRemaining: z.number().min(0).default(0)
-			})
-		)
-		.min(1, "At least one medication is required")
-});
+type MedicationValue = {
+	drugId: string;
+	dosageValue: number;
+	dosageUnit: string;
+	frequency: string;
+	duration: string;
+	instructions: string;
+	refillsRemaining: number;
+};
+
+type PrescriptionFormValues = {
+	patientId: string;
+	doctorId: string;
+	diagnosis: string;
+	notes: string;
+	instructions: string;
+	status: "active" | "completed" | "cancelled" | "expired" | "on_hold";
+	validUntil: string;
+	medications: MedicationValue[];
+};
+
+// Define a type that matches what getPrescriptionById actually returns with relations
+type PrescriptionWithRelationsAndItems = PrescriptionWithItems & {
+	patient?: Patient | null;
+	doctor?: Doctor | null;
+};
 
 export const Route = createFileRoute("/prescriptions/$id/edit")({
 	beforeLoad: async ({ context }) => {
@@ -45,18 +58,28 @@ export const Route = createFileRoute("/prescriptions/$id/edit")({
 		if (session.user.role === "patient") throw redirect({ to: "/" });
 		return { user: session.user };
 	},
-	loader: async ({ params }) => {
+	loader: async ({
+		params
+	}): Promise<{ prescription: PrescriptionWithItems; doctors: Doctor[]; patients: Patient[]; drugs: Drug[] }> => {
+	}): Promise<{ prescription: PrescriptionWithRelationsAndItems; doctors: Doctor[]; patients: Patient[]; drugs: Drug[] }> => {
 		const [prescription, doctors, patients, drugs] = await Promise.all([
 			getPrescriptionById({ data: params.id }),
 			getAllDoctors(),
 			getAllPatients(),
 			getAllDrugs()
 		]);
-		if (!prescription) throw redirect({ to: "/prescriptions" });
-		return { prescription, doctors, patients, drugs };
-	},
+if (!prescription) throw redirect({ to: "/prescriptions" });
+return { prescription, doctors: doctors as Doctor[], patients: patients as Patient[], drugs: drugs as Drug[] };
+if (!prescription) throw redirect({ to: "/prescriptions" }); // Ensure prescription is not null
+return {
+			prescription: prescription as PrescriptionWithRelationsAndItems, // Cast to the new type
+			doctors: doctors as Doctor[],
+			patients: patients as Patient[],
+			drugs: drugs as Drug[]
+		};
+},
 	component: EditPrescriptionPage
-});
+})
 
 const frequencyOptions = [
 	{ value: "ONCE_DAILY", label: "Once daily" },
@@ -82,7 +105,8 @@ function EditPrescriptionPage() {
 		return d.toISOString().split("T")[0];
 	};
 
-	const defaultMedications = prescription.prescribedItems?.map(item => ({
+	const defaultMedications = prescription.prescribedItem.map((item: any) => ({
+	const defaultMedications = prescription.prescribedItems.map((item: PrescriptionWithItems['prescribedItems'][number]) => ({
 		drugId: item.drugId,
 		dosageValue: item.dosageValue,
 		dosageUnit: item.dosageUnit,
@@ -93,6 +117,7 @@ function EditPrescriptionPage() {
 	})) || [
 		{
 			drugId: "",
+			drugId: "", // Default value for new medication
 			dosageValue: 0,
 			dosageUnit: "mg",
 			frequency: "TWICE_DAILY",
@@ -102,16 +127,19 @@ function EditPrescriptionPage() {
 		}
 	];
 
-	const form = useForm({
+	const form = useForm<PrescriptionFormValues>({
 		defaultValues: {
 			patientId: prescription.patientId,
 			doctorId: prescription.doctorId,
 			diagnosis: prescription.diagnosis || "",
 			notes: prescription.notes || "",
-			instructions: prescription.instructions || "",
+			instructions: (prescription as any).instructions || "",
 			status: prescription.status as "active" | "completed" | "cancelled" | "expired" | "on_hold",
+			validUntil: formatDateForInput((prescription as any).validUntil),
+			instructions: prescription.instructions || "",
+			status: prescription.status,
 			validUntil: formatDateForInput(prescription.validUntil),
-			medications: defaultMedications
+			medications: defaultMedications as MedicationValue[]
 		},
 		onSubmit: async ({ value }) => {
 			setIsSubmitting(true);
@@ -167,7 +195,7 @@ function EditPrescriptionPage() {
 													<SelectValue placeholder='Select patient' />
 												</SelectTrigger>
 												<SelectContent>
-													{patients.map((patient: any) => (
+													{patients.map((patient: Patient) => (
 														<SelectItem
 															key={patient.id}
 															value={patient.id}
@@ -193,7 +221,7 @@ function EditPrescriptionPage() {
 													<SelectValue placeholder='Select doctor' />
 												</SelectTrigger>
 												<SelectContent>
-													{doctors.map((doctor: any) => (
+													{doctors.map((doctor: Doctor) => (
 														<SelectItem
 															key={doctor.id}
 															value={doctor.id}
@@ -214,6 +242,7 @@ function EditPrescriptionPage() {
 											<Select
 												onValueChange={field.handleChange}
 												value={field.state.value}
+												value={field.state.value as string} // Cast to string for Select component
 											>
 												<SelectTrigger id={field.name}>
 													<SelectValue placeholder='Select status' />
@@ -276,14 +305,17 @@ function EditPrescriptionPage() {
 								<form.Field name='medications'>
 									{field => (
 										<div className='space-y-4'>
-											{field.state.value.map((_, index) => (
+											{field.state.value.map((_med: MedicationValue, index: number) => (
 												<MedicationFormFields
 													drugs={drugs}
+													form={form}
 													index={index}
 													key={index}
 													onRemove={() => {
 														const currentMeds = field.state.value;
-														const newMeds = currentMeds.filter((_, i) => i !== index);
+														const newMeds = currentMeds.filter(
+															(_: MedicationValue, i: number) => i !== index
+														);
 														field.handleChange(newMeds);
 													}}
 												/>
@@ -364,8 +396,19 @@ function EditPrescriptionPage() {
 	);
 }
 
-function MedicationFormFields({ drugs, index, onRemove }: { drugs: any[]; index: number; onRemove: () => void }) {
-	const fieldName = (subPath: string) => `medications[${index}].${subPath}`;
+function MedicationFormFields({
+	drugs,
+	form,
+	index,
+	onRemove
+}: {
+	drugs: Drug[];
+	form: FormApi<PrescriptionFormValues>;
+	index: number;
+	onRemove: () => void;
+}) {
+	const fieldName = (subPath: string) =>
+		`medications[${index}].${subPath}` as unknown as DeepKeys<PrescriptionFormValues>;
 
 	return (
 		<div className='rounded-lg border p-4 dark:border-slate-700'>
@@ -383,18 +426,19 @@ function MedicationFormFields({ drugs, index, onRemove }: { drugs: any[]; index:
 			</div>
 			<div className='grid gap-3 sm:grid-cols-2'>
 				<form.Field name={fieldName("drugId")}>
-					{field => (
+					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => ( // Explicitly type field
 						<div className='space-y-1'>
 							<Label htmlFor={field.name}>Medication *</Label>
 							<Select
 								onValueChange={field.handleChange}
-								value={field.state.value}
+								value={field.state.value as string}
 							>
 								<SelectTrigger id={field.name}>
 									<SelectValue placeholder='Select medication' />
 								</SelectTrigger>
 								<SelectContent>
-									{drugs.map((drug: any) => (
+									{drugs.map((drug: Drug) => (
 										<SelectItem
 											key={drug.id}
 											value={drug.id}
@@ -410,7 +454,8 @@ function MedicationFormFields({ drugs, index, onRemove }: { drugs: any[]; index:
 
 				<div className='grid grid-cols-2 gap-2'>
 					<form.Field name={fieldName("dosageValue")}>
-						{field => (
+						{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+						{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => ( // Explicitly type field
 							<div className='space-y-1'>
 								<Label htmlFor={field.name}>Dosage *</Label>
 								<Input
@@ -425,12 +470,13 @@ function MedicationFormFields({ drugs, index, onRemove }: { drugs: any[]; index:
 					</form.Field>
 
 					<form.Field name={fieldName("dosageUnit")}>
-						{field => (
+						{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+						{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => ( // Explicitly type field
 							<div className='space-y-1'>
 								<Label htmlFor={field.name}>Unit *</Label>
 								<Select
 									onValueChange={field.handleChange}
-									value={field.state.value}
+									value={field.state.value as string}
 								>
 									<SelectTrigger id={field.name}>
 										<SelectValue />
@@ -452,12 +498,13 @@ function MedicationFormFields({ drugs, index, onRemove }: { drugs: any[]; index:
 				</div>
 
 				<form.Field name={fieldName("frequency")}>
-					{field => (
+					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => ( // Explicitly type field
 						<div className='space-y-1'>
 							<Label htmlFor={field.name}>Frequency *</Label>
 							<Select
 								onValueChange={field.handleChange}
-								value={field.state.value}
+								value={field.state.value as string}
 							>
 								<SelectTrigger id={field.name}>
 									<SelectValue />
@@ -478,7 +525,8 @@ function MedicationFormFields({ drugs, index, onRemove }: { drugs: any[]; index:
 				</form.Field>
 
 				<form.Field name={fieldName("duration")}>
-					{field => (
+					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => ( // Explicitly type field
 						<div className='space-y-1'>
 							<Label htmlFor={field.name}>Duration</Label>
 							<Input
@@ -491,23 +539,30 @@ function MedicationFormFields({ drugs, index, onRemove }: { drugs: any[]; index:
 					)}
 				</form.Field>
 
-				<form.Field name={fieldName("refillsRemaining")}>
-					{field => (
-						<div className='space-y-1'>
-							<Label htmlFor={field.name}>Refills Remaining</Label>
-							<Input
-								id={field.name}
-								min='0'
-								onChange={e => field.handleChange(Number.parseInt(e.target.value))}
-								type='number'
-								value={field.state.value}
-							/>
-						</div>
-					)}
-				</form.Field>
+				<form.Field
+	name={fieldName("refillsRemaining")}>
+					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+	(
+		field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>> // Explicitly type field
+	) => (
+		<div className='space-y-1'>
+			<Label htmlFor={field.name}>Refills Remaining</Label>
+			<Input
+				id={field.name}
+				min='0'
+				onChange={e => field.handleChange(Number.parseInt(e.target.value, 10))}
+				type='number'
+				value={field.state.value}
+			/>
+		</div>
+	);
+	</form.Field>
 
-				<form.Field name={fieldName("instructions")}>
-					{field => (
+				<form.Field name=
+	fieldName("instructions");
+	>
+	(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => (
+					{(field: FieldApi<PrescriptionFormValues, DeepKeys<PrescriptionFormValues>>) => ( // Explicitly type field
 						<div className='space-y-1 sm:col-span-2'>
 							<Label htmlFor={field.name}>Specific Instructions</Label>
 							<Textarea
@@ -517,10 +572,10 @@ function MedicationFormFields({ drugs, index, onRemove }: { drugs: any[]; index:
 								rows={1}
 								value={field.state.value}
 							/>
-						</div>
-					)}
-				</form.Field>
+	</div>
+					)
+	</form.Field>
 			</div>
 		</div>
-	);
+	)
 }

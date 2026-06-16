@@ -1,14 +1,15 @@
 // src/routes/appointments/$id.tsx
+
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
-import { AlertCircle, Calendar, Clock, FileText, Mail, MapPin, Phone, Stethoscope, User } from "lucide-react";
+import { AlertCircle, Calendar, Clock, Mail, Phone, Stethoscope, User } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getAppointmentById } from "@/data/appointments";
 import { formatDate, formatTime } from "@/utils/formDate";
 import type { AppointmentStatus } from "../../db/schema";
-
 export const Route = createFileRoute("/appointments/$id")({
 	beforeLoad: async ({ context }) => {
 		const session = context.session;
@@ -67,7 +68,6 @@ function AppointmentDetailPage() {
 						)}
 					</div>
 				</div>
-
 				{/* Patient Information */}
 				<Card>
 					<CardHeader>
@@ -124,8 +124,8 @@ function AppointmentDetailPage() {
 						</div>
 					</CardContent>
 				</Card>
-
-				{/* Doctor Information */}
+				section
+				{/* Enhanced Doctor Information Section */}
 				<Card>
 					<CardHeader>
 						<CardTitle className='flex items-center gap-2 text-lg'>
@@ -133,20 +133,44 @@ function AppointmentDetailPage() {
 							Doctor Information
 						</CardTitle>
 					</CardHeader>
-					<CardContent className='space-y-3'>
-						<div className='grid gap-4 sm:grid-cols-2'>
-							<div>
-								<p className='text-slate-500 text-xs'>Doctor Name</p>
-								<p className='font-medium'>Dr. {appointment.doctor.name}</p>
-							</div>
-							<div>
-								<p className='text-slate-500 text-xs'>Specialty</p>
-								<p className='font-medium'>{appointment.doctor.specialty}</p>
+					<CardContent>
+						<div className='flex flex-col gap-4 sm:flex-row sm:items-start'>
+							<Avatar className='h-16 w-16 border-2 border-slate-200'>
+								<AvatarFallback className='bg-primary/10 text-lg text-primary'>
+									{appointment.doctor.name?.charAt(0) || "D"}
+								</AvatarFallback>
+							</Avatar>
+							<div className='flex-1 space-y-2'>
+								<div>
+									<h3 className='font-semibold text-lg'>Dr. {appointment.doctor.name}</h3>
+									<p className='text-slate-600 dark:text-slate-400'>{appointment.doctor.specialty}</p>
+								</div>
+								<div className='flex flex-wrap gap-3'>
+									{appointment.doctor.licenseNumber && (
+										<div className='flex items-center gap-1 text-slate-500 text-xs'>
+											<span>License: {appointment.doctor.licenseNumber}</span>
+										</div>
+									)}
+									{appointment.doctor.rating && (
+										<div className='flex items-center gap-1 text-slate-500 text-xs'>
+											<span>⭐ {appointment.doctor.rating}/5</span>
+										</div>
+									)}
+									{appointment.doctor.experience && (
+										<div className='flex items-center gap-1 text-slate-500 text-xs'>
+											<span>{appointment.doctor.experience}+ years experience</span>
+										</div>
+									)}
+								</div>
+								{appointment.doctor.bio && (
+									<p className='text-slate-600 text-sm dark:text-slate-400'>
+										{appointment.doctor.bio}
+									</p>
+								)}
 							</div>
 						</div>
 					</CardContent>
 				</Card>
-
 				{/* Appointment Details */}
 				<Card>
 					<CardHeader>
@@ -199,7 +223,6 @@ function AppointmentDetailPage() {
 						)}
 					</CardContent>
 				</Card>
-
 				{/* Important Information */}
 				<Card className='border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/20'>
 					<CardHeader className='pb-2'>

@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { getEncounterById, updateEncounter } from "@/data/diagnosis";
 import { getAllDoctors } from "@/data/doctors";
+import type { Status } from "../../db/schema";
 
 const encounterSchema = z.object({
 	type: z.string().min(1, "Visit type is required"),
@@ -57,7 +58,7 @@ function EditEncounterPage() {
 			notes: encounter.notes || "",
 			followUpPlan: encounter.followUpPlan || "",
 			prescribedMedications: encounter.prescribedMedications || "",
-			status: (encounter.status as "ACTIVE" | "COMPLETED" | "ON_HOLD") || "ACTIVE",
+			status: (encounter.status as Status) || "ACTIVE",
 			doctorId: encounter.doctorId || ""
 		},
 		onSubmit: async ({ value }) => {
@@ -141,7 +142,7 @@ function EditEncounterPage() {
 														<SelectValue placeholder='Select doctor' />
 													</SelectTrigger>
 													<SelectContent>
-														{doctors.map((doc: any) => (
+														{doctors.map(doc => (
 															<SelectItem
 																key={doc.id}
 																value={doc.id}
@@ -160,7 +161,7 @@ function EditEncounterPage() {
 											<div className='space-y-2'>
 												<Label htmlFor={field.name}>Encounter Status</Label>
 												<Select
-													onValueChange={field.handleChange}
+													onValueChange={value => field.handleChange(value as Status)}
 													value={field.state.value}
 												>
 													<SelectTrigger id={field.name}>
@@ -385,70 +386,3 @@ function EditEncounterPage() {
 		</div>
 	);
 }
-
-async function getAllPatients() {
-	// This is a placeholder, you should import the actual function
-	return [];
-}
-
-/**
- * Mock or helper functions if not available in context
- */
-const updateEncounterMock = async ({ data }: { data: any }) => {
-	// This should be replaced by the actual data action
-	console.log("Updating encounter", data);
-	return data;
-};
-
-/**
- * Note: In a real implementation, ensure updateEncounter is imported from @/data/diagnosis
- * and that it handles the database update correctly.
- */
-
-/**
- * Example of what the updateEncounter data action might look like:
- *
- * export const updateEncounter = createServerFn({ method: "POST" })
- *   .validator((d: any) => d)
- *   .handler(async ({ data }) => {
- *     const { id, ...updates } = data;
- *     return await db.update(encounters)
- *       .set(updates)
- *       .where(eq(encounters.id, id))
- *       .returning();
- *   });
- */
-
-/**
- * Since I don't have the schema or the exact update function in context,
- * I'm assuming updateEncounter exists in @/data/diagnosis based on the pattern.
- */
-
-/**
- * If updateEncounter is not yet defined in @/data/diagnosis, you would add it there:
- *
- * export const updateEncounter = createServerFn({ method: "POST" })
- *   .validator((d: any) => d)
- *   .handler(async ({ data }) => {
- *     const { id, ...updates } = data;
- *     const [updated] = await db
- *       .update(diagnosis)
- *       .set({
- *         ...updates,
- *         updatedAt: new Date(),
- *       })
- *       .where(eq(diagnosis.id, id))
- *       .returning();
- *     return updated;
- *   });
- */
-
-/**
- * The component uses standard shadcn/ui components and TanStack Form for validation and submission.
- */
-
-/**
- * The "Read Only" vitals tab is a safety measure since updating vitals often requires
- * updating multiple tables (vitalSigns, growthRecords) and it's cleaner to handle that
- * via a dedicated "Add Vitals" flow or during initial creation.
- */

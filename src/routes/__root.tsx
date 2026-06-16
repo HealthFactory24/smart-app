@@ -1,11 +1,12 @@
+import Header from "#/components/Header";
+import { getSession } from "#/lib/auth.functions";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { createRootRouteWithContext, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { Toaster } from "sonner";
-import Header from "#/components/Header";
-import { getSession } from "#/lib/auth.functions";
 import appCss from "../styles.css?url";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
@@ -19,37 +20,24 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 	head: () => ({
 		meta: [
-			{
-				charSet: "utf-8"
-			},
-			{
-				name: "viewport",
-				content: "width=device-width, initial-scale=1"
-			},
-			{
-				title: "StackShop"
-			},
-			{
-				description: "StackShop is a platform for buying and selling products"
-			}
+			{ charSet: "utf-8" },
+			{ name: "viewport", content: "width=device-width, initial-scale=1" },
+			{ title: "LittleHearts Pediatric Clinic" },
+			{ description: "Comprehensive pediatric care for every child" }
 		],
-		links: [
-			{
-				rel: "stylesheet",
-				href: appCss
-			}
-		]
+		links: [{ rel: "stylesheet", href: appCss }]
 	}),
 
 	shellComponent: RootDocument
 });
 
-const queryClient = new QueryClient();
-
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<QueryClientProvider client={queryClient}>
-			<html lang='en'>
+		<QueryProvider>
+			<html
+				lang='en'
+				suppressHydrationWarning
+			>
 				<head>
 					<HeadContent />
 				</head>
@@ -77,6 +65,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					<Scripts />
 				</body>
 			</html>
-		</QueryClientProvider>
+		</QueryProvider>
 	);
 }

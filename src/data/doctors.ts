@@ -3,7 +3,6 @@ import { doctor, type DbDoctor as DoctorSelect, type DoctorType } from "@/db/sch
 import { createServerFn } from "@tanstack/react-start";
 import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
-import { generateId } from '../utils';
 import { DoctorEnhancedCreateSchema, type DoctorCreateInput } from '../db/zod';
 
 // Schema for creating/updating doctors
@@ -94,21 +93,38 @@ export const getAvailableDoctors = createServerFn({ method: "GET" }).handler(
 );
 
 // Get doctor by ID
+
 export const getDoctorById = createServerFn({ method: "GET" })
-	.validator((id: string) => id)
-	.handler(async ({ data }) => {
-		const { db } = await import("@/db");
-		const doctorId = z.string().parse(data);
+  .validator((id: string) => id)
+  .handler(async ({ data }) => {
+    const { db } = await import("@/db");
+    const doctorId = z.string().parse(data);
 
-		const result = await db
-			.select()
-			.from(doctor)
-			.where(eq(doctor.id, doctorId))
-			.limit(1);
+    const result = await db
+      .select({
+        id: doctor.id,
+        name: doctor.name,
+        email: doctor.email,
+        specialty: doctor.specialty,
+        licenseNumber: doctor.licenseNumber,
+        phone: doctor.phone,
+        address: doctor.address,
+        department: doctor.department,
+        img: doctor.img,
+        availabilityStatus: doctor.availabilityStatus,
+        type: doctor.type,
+        appointmentPrice: doctor.appointmentPrice,
+        rating: doctor.rating,
+        experience: doctor.experience,
+        bio: doctor.bio,
+        isActive: doctor.isActive,
+      })
+      .from(doctor)
+      .where(eq(doctor.id, doctorId))
+      .limit(1);
 
-		return result[0] ?? null;
-	});
-
+    return result[0] ?? null;
+  });
 // Create a new doctor (admin only)
 export const createDoctor = createServerFn({ method: "POST" })
 	.validator((data: DoctorCreateInput) =>

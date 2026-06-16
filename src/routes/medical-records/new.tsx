@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { getAllDoctors } from "@/data/doctors";
 import { createMedicalRecord } from "@/data/medical-records";
 import { getAllPatients } from "@/data/patients";
+import type { Status } from "../../db/schema";
 
 const medicalRecordSchema = z.object({
 	diagnosis: z.string().optional(),
@@ -47,13 +48,13 @@ function NewMedicalRecordPage() {
 	const form = useForm({
 		defaultValues: {
 			diagnosis: "",
-      appointmentId: "",
+			appointmentId: "",
 			symptoms: "",
 			treatmentPlan: "",
 			labRequest: "",
 			notes: "",
 			followUpDate: "",
-			status: "ACTIVE" as const,
+			status: "ACTIVE" as Status,
 			doctorId: "",
 			patientId: ""
 		},
@@ -63,7 +64,7 @@ function NewMedicalRecordPage() {
 				const result = await createMedicalRecord({
 					data: {
 						...value,
-            appointmentId: value.,
+						appointmentId: value.appointmentId,
 						followUpDate: value.followUpDate ? new Date(value.followUpDate) : undefined
 					}
 				});
@@ -152,7 +153,7 @@ function NewMedicalRecordPage() {
 										<div className='space-y-2'>
 											<Label htmlFor={field.name}>Status</Label>
 											<Select
-												onValueChange={field.handleChange}
+												onValueChange={value => field.handleChange(value as Status)}
 												value={field.state.value}
 											>
 												<SelectTrigger id={field.name}>

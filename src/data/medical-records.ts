@@ -96,48 +96,48 @@ export const getMedicalRecordById = createServerFn({ method: "GET" })
 		const { db } = await import("@/db");
 		const recordId = z.string().parse(data);
 
-		const record = await db.query.medicalRecord.findFirst({
-			where: { id: recordId, isDeleted: false },
-			with: {
-				patient: {
-					columns: { id: true, firstName: true, lastName: true, dateOfBirth: true, mrn: true , userId: true},
-				},
-				doctor: {
-					columns: { id: true, name: true, specialty: true },
-				},
-				appointment: true,
-				encounters: {
-					orderBy: { date: "desc" },
-				},
-				vitalSigns: {
-					orderBy: { recordedAt: "desc" },
-				},
-				prescriptions: {
-					with: {
-						prescribedItems: {
-							with: {
-								drug: true,
-							},
-						},
-					},
-					orderBy: { issuedDate: "desc" },
-				},
-			},
-		});
+	    const record = await db.query.medicalRecord.findFirst({
+        where: { id: recordId, isDeleted: false },
+        with: {
+          patient: { columns: { id: true, firstName: true, lastName: true, dateOfBirth: true, mrn: true, userId: true } },
+          doctor: { columns: { id: true, name: true, specialty: true } },
+          appointment: true,
+          labTests: { limit: 5, orderBy: { testDate: "desc" }, with: { service: true } }, // Limit lab tests
+          encounters: { limit: 5, orderBy: { date: "desc" } }, // Limit encounters
+          vitalSigns: { limit: 1, orderBy: { recordedAt: "desc" } } // Only latest vitals
+        }
+      });
 
-		if (!record) throw new Error("Medical record not found");
+      if (!record) throw new Error("Medical record not found");
 
-		// Check authorization
-		const isAdmin = session.user.role === "admin";
-		const isDoctor = session.user.role === "doctor";
-		const isStaff = session.user.role === "staff";
+      // Lazy load prescriptions only when needed (separate query)
+      // This prevents the expensive nested join for every request
+      if (session.user.role !== "patient") {
+        const prescriptions = await db.query.prescription.findMany({
+          where: { medicalRecordId: recordId },
+          with: {
+            prescribedItems: {
+              limit: 10,
+              with: { drug: true }
+            }
+          },
+          orderBy: { issuedDate: "desc" },
+          limit: 5
+        });
 
-		if (!isAdmin && !isDoctor && !isStaff && record.patient?.userId !== session.user.id) {
-			throw new Error("Forbidden");
-		}
+        return { ...record, prescriptions };
+      }
 
-		return record;
-	});
+      // For patients, exclude sensitive prescription details
+      const prescriptions = await db.query.prescription.findMany({
+        where: { medicalRecordId: recordId },
+        columns: { id: true, medicationName: true, issuedDate: true, status: true , diagnosis:true, },
+        orderBy: { issuedDate: "desc" },
+        limit: 5
+      });
+
+      return { ...record, prescriptions };
+    });
 
 // Create medical record
 export const createMedicalRecord = createServerFn({ method: "POST" })

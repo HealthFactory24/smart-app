@@ -116,6 +116,9 @@ import { generateId } from '../utils';
  		const [result] = await db
  			.select({
  				id: prescription.id,
+        patientId: prescription.patientId,
+        doctorId: prescription.doctorId,
+        
  				medications: prescription.medicationName,
  				diagnosis: prescription.diagnosis,
  				notes: prescription.notes,

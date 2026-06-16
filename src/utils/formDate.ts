@@ -239,7 +239,7 @@ export function formatNumber(amount: number): string {
 	});
 }
 
-export function getInitials(name: string, lastName: string): string {
+export function getInitials(name: string): string {
 	const words = name.trim().split(" ");
 
 	const firstTwoWords = words.slice(0, 2);

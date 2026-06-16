@@ -1,23 +1,18 @@
 // src/routes/medical-records/$id.tsx
+
 import { createFileRoute, Link, notFound, redirect } from "@tanstack/react-router";
 import {
 	Activity,
-	AlertCircle,
 	ArrowLeft,
 	Calendar,
-	Clock,
 	Droplets,
 	Edit,
-	FileText,
 	Heart,
-	Mail,
-	Phone,
 	Pill,
 	Printer,
 	Ruler,
 	Share2,
 	Stethoscope,
-	Syringe,
 	Thermometer,
 	User,
 	Weight
@@ -25,11 +20,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getMedicalRecordById } from "@/data/medical-records";
 import { formatDate } from "@/utils/formDate";
 import { calculateAge, calculateBMI } from "@/utils/growth";
+import type { DbDrug, DbPrescribedItem } from "../../db/schema";
 
 export const Route = createFileRoute("/medical-records/$id")({
 	beforeLoad: async ({ context }) => {
@@ -116,7 +111,9 @@ function MedicalRecordDetailPage() {
 							<div>
 								<div className='flex items-center gap-2'>
 									<h1 className='font-semibold text-2xl'>Medical Record</h1>
-									<Badge className={statusColors[record.status]}>{record.status}</Badge>
+									<Badge className={record.status ? statusColors[record.status] : ""}>
+										{record.status}
+									</Badge>
 								</div>
 								<CardDescription className='mt-1'>
 									Created {formatDate(record.createdAt)} • Last updated {formatDate(record.updatedAt)}
@@ -401,42 +398,50 @@ function MedicalRecordDetailPage() {
 										{prescription.diagnosis && (
 											<p className='mb-3 font-medium'>Diagnosis: {prescription.diagnosis}</p>
 										)}
-										{prescription.prescribedItems && prescription.prescribedItems.length > 0 && (
-											<div className='space-y-3'>
-												<h4 className='font-medium text-sm'>Medications:</h4>
-												<div className='space-y-2'>
-													{prescription.prescribedItems.map((item, idx) => (
-														<div
-															className='rounded-lg border p-3 dark:border-slate-700'
-															key={idx}
-														>
-															<div className='flex items-start justify-between'>
-																<div>
-																	<p className='font-medium'>
-																		{item.drug?.name || item.drugId}
-																	</p>
-																	<p className='text-slate-600 text-sm dark:text-slate-400'>
-																		{item.dosageValue} {item.dosageUnit} •{" "}
-																		{item.frequency.replace(/_/g, " ")}
-																	</p>
-																	{item.duration && (
-																		<p className='text-slate-500 text-xs'>
-																			Duration: {item.duration}
+										{"prescribedItems" in prescription &&
+											Array.isArray(prescription.prescribedItems) &&
+											prescription.prescribedItems.length > 0 && (
+												<div className='space-y-3'>
+													<h4 className='font-medium text-sm'>Medications:</h4>
+													<div className='space-y-2'>
+														{prescription.prescribedItems.map(
+															(
+																item: DbPrescribedItem & { drug?: DbDrug | null },
+																idx: number
+															) => (
+																<div
+																	className='rounded-lg border p-3 dark:border-slate-700'
+																	key={idx}
+																>
+																	<div className='flex items-start justify-between'>
+																		<div>
+																			<p className='font-medium'>
+																				{item.drug?.name || item.drugId}
+																			</p>
+																			<p className='text-slate-600 text-sm dark:text-slate-400'>
+																				{item.dosageValue} {item.dosageUnit} •{" "}
+																				{item.frequency?.replace(/_/g, " ") ||
+																					""}
+																			</p>
+																			{item.duration && (
+																				<p className='text-slate-500 text-xs'>
+																					Duration: {item.duration}
+																				</p>
+																			)}
+																		</div>
+																		<Pill className='h-5 w-5 text-slate-400' />
+																	</div>
+																	{item.instructions && (
+																		<p className='mt-2 text-slate-600 text-sm dark:text-slate-400'>
+																			{item.instructions}
 																		</p>
 																	)}
 																</div>
-																<Pill className='h-5 w-5 text-slate-400' />
-															</div>
-															{item.instructions && (
-																<p className='mt-2 text-slate-600 text-sm dark:text-slate-400'>
-																	{item.instructions}
-																</p>
-															)}
-														</div>
-													))}
+															)
+														)}
+													</div>
 												</div>
-											</div>
-										)}
+											)}
 									</CardContent>
 								</Card>
 							))
@@ -458,8 +463,8 @@ function MedicalRecordDetailPage() {
 						className='space-y-4'
 						value='lab-results'
 					>
-						{record.labRequest && record.labRequest.length > 0 ? (
-							record.labRequest.map(labTest => (
+						{record.labTests && record.labTests.length > 0 ? (
+							record.labTests.map(labTest => (
 								<Card key={labTest.id}>
 									<CardHeader>
 										<div className='flex flex-wrap items-start justify-between gap-2'>

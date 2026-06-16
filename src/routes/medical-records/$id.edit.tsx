@@ -1,4 +1,9 @@
 // src/routes/medical-records/$id.edit.tsx
+
+import { useForm } from "@tanstack/react-form";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,24 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { getAllDoctors } from "@/data/doctors";
 import { getMedicalRecordById, updateMedicalRecord } from "@/data/medical-records";
 import { getAllPatients } from "@/data/patients";
-import { useForm } from "@tanstack/react-form";
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
-import { z } from "zod";
 import type { Status } from "../../db/schema";
-
-const medicalRecordSchema = z.object({
-	diagnosis: z.string().optional(),
-	symptoms: z.string().optional(),
-	treatmentPlan: z.string().optional(),
-	labRequest: z.string().optional(),
-	notes: z.string().optional(),
-	followUpDate: z.string().optional(),
-	status: z.enum(["ACTIVE", "COMPLETED", "PENDING", "ON_HOLD", "CANCELLED"]).default("ACTIVE"),
-	doctorId: z.string().min(1, "Doctor is required"),
-	patientId: z.string().min(1, "Patient is required")
-});
 
 export const Route = createFileRoute("/medical-records/$id/edit")({
 	beforeLoad: async ({ context }) => {
@@ -65,7 +53,7 @@ function EditMedicalRecordPage() {
 			labRequest: record.labRequest || "",
 			notes: record.notes || "",
 			followUpDate: formatDateForInput(record.followUpDate),
-			status: record.status as "ACTIVE" | "COMPLETED" | "PENDING" | "ON_HOLD" | "CANCELLED",
+			status: (record.status as Status) || "ACTIVE",
 			doctorId: record.doctorId,
 			patientId: record.patientId
 		},
